@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entry Karo - Admin Panel</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <div id="loginScreen" class="screen">
+        <div class="login-container">
+            <div class="logo">
+                <div class="logo-icon">EK</div>
+                <h1>Entry Karo</h1>
+                <p>Admin Panel</p>
+            </div>
+            <form id="loginForm">
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" id="adminEmail" required placeholder="Enter Admin Email">
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="adminPassword" required placeholder="Enter Password">
+                </div>
+                <button type="submit" class="btn btn-primary">Login</button>
+                <div id="loginError" class="error-message"></div>
+            </form>
+        </div>
+    </div>
+
+    <div id="dashboardScreen" class="screen hidden">
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon small">EK</div>
+                <span>Admin Panel</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-page="dashboard">
+                    <span class="icon">📊</span> Dashboard
+                </a>
+                <a href="#" class="nav-item" data-page="approvals">
+                    <span class="icon">⏳</span> User Approvals
+                </a>
+                <a href="#" class="nav-item" data-page="users">
+                    <span class="icon">👥</span> Users
+                </a>
+                <a href="#" class="nav-item" data-page="received">
+                    <span class="icon">📥</span> Received Entries
+                </a>
+                <a href="#" class="nav-item" data-page="deposits">
+                    <span class="icon">💰</span> Deposits
+                </a>
+                <a href="#" class="nav-item" data-page="settings">
+                    <span class="icon">⚙️</span> Settings
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <button id="logoutBtn" class="btn btn-secondary">Logout</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="mobile-header">
+                <button class="menu-btn" onclick="openSidebar()">☰</button>
+                <h2 id="pageTitle">Dashboard</h2>
+                <div style="width: 40px;"></div>
+            </div>
+            <!-- Dashboard Page -->
+            <div id="page-dashboard" class="page">
+                <h2>Dashboard</h2>
+                <p class="subtitle">Overview of your application performance</p>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <h3>Total Users</h3>
+                            <div class="stat-value" id="totalUsers">0</div>
+                            <div class="stat-change positive">+12%</div>
+                        </div>
+                        <div class="stat-icon blue">👤</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <h3>Total Balance</h3>
+                            <div class="stat-value" id="totalBalance">₹0</div>
+                            <div class="stat-change positive">+5%</div>
+                        </div>
+                        <div class="stat-icon gold">💵</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <h3>Pending Deposits</h3>
+                            <div class="stat-value" id="pendingDeposits">0</div>
+                            <div class="stat-change neutral">Needs attention</div>
+                        </div>
+                        <div class="stat-icon orange">⏳</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <h3>Active Now</h3>
+                            <div class="stat-value" id="activeUsers">0</div>
+                            <div class="stat-change positive">30% online</div>
+                        </div>
+                        <div class="stat-icon green">📈</div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <h3>Recent Activity</h3>
+                        <div id="recentActivity" class="activity-list">
+                            <p class="empty-state">No recent activity</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3>Quick Actions</h3>
+                        <div class="quick-actions">
+                            <button class="action-btn" onclick="navigateTo('users')">
+                                <span class="icon">👤</span>
+                                <span>Manage Users</span>
+                                <small>0 total users</small>
+                            </button>
+                            <button class="action-btn" onclick="navigateTo('deposits')">
+                                <span class="icon">💰</span>
+                                <span>Review Deposits</span>
+                                <small>0 pending</small>
+                            </button>
+                            <button class="action-btn" onclick="navigateTo('settings')">
+                                <span class="icon">📊</span>
+                                <span>View Reports</span>
+                                <small>Analytics & stats</small>
+                            </button>
+                            <button class="action-btn" onclick="navigateTo('settings')">
+                                <span class="icon">📞</span>
+                                <span>Call Status</span>
+                                <small>Monitor calls</small>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users Page -->
+            <div id="page-users" class="page hidden">
+                <h2>User Management</h2>
+                <div class="card">
+                    <div class="table-header">
+                        <input type="text" id="userSearch" placeholder="Search users..." class="search-input">
+                        <button class="btn btn-primary" onclick="createUser()">+ Create User</button>
+                    </div>
+                    <div class="table-container">
+                        <table id="usersTable">
+                            <thead>
+                                <tr>
+                                    <th>Email</th>
+                                    <th>Balance</th>
+                                    <th>Status</th>
+                                    <th>Last Login</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <!-- Users will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Approvals Page -->
+            <div id="page-approvals" class="page hidden">
+                <h2>User Approvals</h2>
+                <p class="subtitle">Review and approve pending user accounts</p>
+                
+                <div class="card">
+                    <div class="table-container">
+                        <table id="approvalsTable">
+                            <thead>
+                                <tr>
+                                    <th>Email</th>
+                                    <th>User ID</th>
+                                    <th>Created Time</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="approvalsTableBody">
+                                <!-- Pending users will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <p id="noApprovalsMessage" class="empty-state hidden">No pending approvals</p>
+                </div>
+            </div>
+
+            <!-- Deposits Page -->
+            <div id="page-deposits" class="page hidden">
+                <h2>Deposit Approvals</h2>
+                <div class="card">
+                    <div class="table-container">
+                        <table id="depositsTable">
+                            <thead>
+                                <tr>
+                                    <th>User Email</th>
+                                    <th>Amount</th>
+                                    <th>UTR</th>
+                                    <th>Time</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="depositsTableBody">
+                                <!-- Deposits will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Received Entries Page -->
+            <div id="page-received" class="page hidden">
+                <h2>Received Entries</h2>
+                <p class="subtitle">Admin-created credit entries for users</p>
+                <div class="card">
+                    <div class="table-header">
+                        <button class="btn btn-primary" onclick="openAddReceivedModal()">+ Add Received Entry</button>
+                    </div>
+                    <div class="table-container">
+                        <table id="receivedTable">
+                            <thead>
+                                <tr>
+                                    <th>User Email</th>
+                                    <th>Amount</th>
+                                    <th>Timestamp</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="receivedTableBody">
+                                <!-- Received entries will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Detail Page -->
+            <div id="page-user-detail" class="page hidden">
+                <div class="user-detail-header">
+                    <button class="btn btn-secondary" onclick="navigateTo('users')">← Back to Users</button>
+                    <h2 id="userDetailTitle">User Details</h2>
+                </div>
+                <div class="user-detail-grid">
+                    <div class="card user-info-card">
+                        <h3>User Information</h3>
+                        <div class="user-info-row">
+                            <span class="info-label">Email:</span>
+                            <span class="info-value" id="detailUserEmail">-</span>
+                        </div>
+                        <div class="user-info-row">
+                            <span class="info-label">Wallet Balance:</span>
+                            <span class="info-value" id="detailUserBalance">-</span>
+                        </div>
+                        <div class="user-info-row">
+                            <span class="info-label">Account Status:</span>
+                            <span class="info-value" id="detailUserStatus">-</span>
+                        </div>
+                        <div class="user-info-row">
+                            <span class="info-label">Last Login:</span>
+                            <span class="info-value" id="detailUserLastLogin">-</span>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3>Received History</h3>
+                        <div class="table-container">
+                            <table id="receivedHistoryTable">
+                                <thead>
+                                    <tr>
+                                        <th>Amount</th>
+                                        <th>Note</th>
+                                        <th>Timestamp</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="receivedHistoryBody">
+                                    <!-- Received history loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3>Deposit History</h3>
+                        <div class="table-container">
+                            <table id="depositHistoryTable">
+                                <thead>
+                                    <tr>
+                                        <th>Amount</th>
+                                        <th>UTR</th>
+                                        <th>Note</th>
+                                        <th>Status</th>
+                                        <th>Timestamp</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="depositHistoryBody">
+                                    <!-- Deposit history loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Page -->
+            <div id="page-settings" class="page hidden">
+                <h2>Global Settings</h2>
+                <div class="settings-grid">
+                    <div class="card">
+                        <h3>App Controls</h3>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <span class="setting-label">Freeze App</span>
+                                <span class="setting-desc">Prevent all users from accessing the app</span>
+                            </div>
+                            <label class="toggle">
+                                <input type="checkbox" id="freezeAppToggle">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3>Call Monitoring</h3>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <span class="setting-label">Active Call</span>
+                                <span class="setting-desc" id="activeCallStatus">No active call</span>
+                            </div>
+                            <button class="btn btn-secondary" id="endCallBtn" disabled>End Call</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset Password Modal -->
+    <div id="resetPasswordModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Reset User Password & MPIN</h3>
+                <button class="close-btn" onclick="closeResetModal()">&times;</button>
+            </div>
+            <form id="resetPasswordForm">
+                <input type="hidden" id="resetUserId">
+                <div class="input-group">
+                    <label>New Password</label>
+                    <input type="password" id="newResetPassword" required placeholder="Enter new password">
+                </div>
+                <div class="input-group">
+                    <label>New MPIN (4 digits)</label>
+                    <input type="password" id="newResetMPIN" required placeholder="Enter new MPIN" maxlength="4" pattern="[0-9]{4}">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeResetModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Reset Password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Create User Modal -->
+    <div id="createUserModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create New User</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="createUserForm">
+                <div class="input-group">
+                    <label>User ID</label>
+                    <input type="text" id="newUserId" required placeholder="Enter User ID">
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="newUserPassword" required placeholder="Enter Password">
+                </div>
+                <div class="input-group">
+                    <label>Initial Balance (₹)</label>
+                    <input type="number" id="newUserBalance" value="0" min="0">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div id="editUserModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit User</h3>
+                <button class="close-btn" onclick="closeEditModal()">&times;</button>
+            </div>
+            <form id="editUserForm">
+                <input type="hidden" id="editUserId">
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" id="editUserEmail" placeholder="Enter Email">
+                </div>
+                <div class="input-group">
+                    <label>Balance (₹)</label>
+                    <input type="number" id="editUserBalance" min="0">
+                </div>
+                <div class="input-group">
+                    <label>Status</label>
+                    <select id="editUserStatus">
+                        <option value="active">Active</option>
+                        <option value="pending">Pending</option>
+                        <option value="banned">Banned</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Received Entry Modal -->
+    <div id="addReceivedModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add Received Entry</h3>
+                <button class="close-btn" onclick="closeAddReceivedModal()">&times;</button>
+            </div>
+            <form id="addReceivedForm">
+                <div class="input-group">
+                    <label>Search User (Email/Name)</label>
+                    <input type="text" id="receivedUserSearch" placeholder="Type email or name to search..." autocomplete="off">
+                </div>
+                <div class="input-group">
+                    <label>Select User</label>
+                    <select id="receivedUserSelect" required size="5" style="min-height: 120px;">
+                        <option value="">Select a user...</option>
+                    </select>
+                    <small style="color: #888; font-size: 11px;">Showing all active users. Type above to filter.</small>
+                </div>
+                <div class="input-group">
+                    <label>Amount (₹)</label>
+                    <input type="number" id="receivedAmount" required placeholder="Enter amount" min="1" step="0.01">
+                </div>
+                <div class="input-group">
+                    <label>Note (Optional)</label>
+                    <input type="text" id="receivedNote" placeholder="Enter note">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeAddReceivedModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Entry</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
