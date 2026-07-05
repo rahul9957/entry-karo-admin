@@ -165,6 +165,24 @@
                     <span class="nav-text">Received</span>
                     <div class="nav-indicator"></div>
                 </a>
+                <a href="#" class="nav-item" data-page="employees">
+                    <div class="nav-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm6 5H9m3-3v6"/>
+                        </svg>
+                    </div>
+                    <span class="nav-text">Employee Management</span>
+                    <div class="nav-indicator"></div>
+                </a>
+                <a href="#" class="nav-item" data-page="id-statements">
+                    <div class="nav-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 3v5h5M16 13H8m8 4H8m2-8H8"/>
+                        </svg>
+                    </div>
+                    <span class="nav-text">ID Management</span>
+                    <div class="nav-indicator"></div>
+                </a>
                 <a href="#" class="nav-item" data-page="settings">
                     <div class="nav-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -804,12 +822,18 @@
                             <h2>Deposit Approvals</h2>
                             <p>Review and process deposit requests</p>
                         </div>
-                        <div class="page-header-right">
+                        <div class="page-header-right" style="display: flex; gap: var(--space-2);">
                             <button class="btn btn-secondary" onclick="loadDeposits()">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
                                 </svg>
                                 Refresh
+                            </button>
+                            <button class="btn btn-danger" onclick="openAddPurchaseModal()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                                </svg>
+                                Add Purchase
                             </button>
                         </div>
                     </div>
@@ -924,6 +948,16 @@
                                         <span class="toggle-slider"></span>
                                     </label>
                                 </div>
+                                <div class="setting-item">
+                                    <div class="setting-info">
+                                        <span class="setting-name">Enable Employee Panel</span>
+                                        <span class="setting-desc">Control access to the employee panel</span>
+                                    </div>
+                                    <label class="toggle">
+                                        <input type="checkbox" id="employeePanelToggle">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
                             </div>
                         </div>
 
@@ -986,7 +1020,114 @@
                                     </div>
                                     <span class="badge badge-success">Connected</span>
                                 </div>
+                    </div>
+                </div>
+
+                <!-- Employee Management Page -->
+                <div id="page-employees" class="page hidden">
+                    <div class="page-header">
+                        <div class="page-header-left">
+                            <h2>Employee Management</h2>
+                            <p>Manage employees, permissions, and panel access</p>
+                        </div>
+                        <div class="page-header-right">
+                            <button class="btn btn-primary" onclick="openCreateEmployeeModal()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm9-3v6m-3-3h6"/>
+                                </svg>
+                                Create Employee
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="table-header">
+                            <div class="search-box">
+                                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                                </svg>
+                                <input type="text" id="employeeSearch" placeholder="Search by email..." autocomplete="off">
                             </div>
+                        </div>
+                        <div class="table-container">
+                            <table class="data-table" id="employeesTable">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Status</th>
+                                        <th>Last Login</th>
+                                        <th>Online Status</th>
+                                        <th class="actions-col">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="employeesTableBody">
+                                    <!-- Dynamic content -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ID Statements Page -->
+                <div id="page-id-statements" class="page hidden">
+                    <div class="page-header">
+                        <div class="page-header-left">
+                            <h2>ID Management</h2>
+                            <p>Track business performance inside ID 1 and ID 2 sections</p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="table-header flex-col md:flex-row gap-4" style="align-items: stretch; display: flex; flex-direction: column;">
+                            <div class="flex flex-wrap gap-4 items-center flex-1" style="display: flex; flex-wrap: wrap; gap: var(--space-4);">
+                                <div class="search-box">
+                                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                                    </svg>
+                                    <input type="text" id="idStatementSearch" placeholder="Search by Employee/Remarks..." autocomplete="off">
+                                </div>
+                                <select class="filter-select" id="idTypeFilter">
+                                    <option value="all">All Accounts (ID 1 & ID 2)</option>
+                                    <option value="ID1">ID 1 Only</option>
+                                    <option value="ID2">ID 2 Only</option>
+                                </select>
+                                <select class="filter-select" id="idEntryTypeFilter">
+                                    <option value="all">All Types</option>
+                                    <option value="sell">Sell</option>
+                                    <option value="purchase">Purchase</option>
+                                </select>
+                                <input type="date" class="filter-select" id="idDateFilter" style="color-scheme: dark; border: 1px solid var(--border-primary); background: var(--bg-primary); padding: var(--space-2); border-radius: var(--radius-md); color: var(--text-primary);">
+                            </div>
+                            <div class="table-actions" style="margin-top: var(--space-4); display: flex; gap: var(--space-3);">
+                                <button class="btn btn-secondary" onclick="exportIDStatements('csv')">Export CSV</button>
+                                <button class="btn btn-primary" onclick="exportIDStatements('pdf')">Export PDF</button>
+                                <button class="btn btn-secondary" onclick="printIDStatements()" style="border-color: var(--accent-color); color: var(--accent-color);">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="vertical-align: middle; margin-right: 4px;">
+                                        <polyline points="6 9 6 2 18 2 18 9"/>
+                                        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+                                        <rect x="6" y="14" width="12" height="8"/>
+                                    </svg>
+                                    Print Statement
+                                </button>
+                            </div>
+                        </div>
+                        <div class="table-container">
+                            <table class="data-table" id="idStatementsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Account</th>
+                                        <th>Type</th>
+                                        <th>Amount</th>
+                                        <th>Employee Name</th>
+                                        <th>Remarks</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="idStatementsTableBody">
+                                    <!-- Dynamic content -->
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -1199,6 +1340,246 @@
                         </svg>
                         Add Entry
                     </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Purchase Entry Modal (Admin Panel) -->
+    <div id="addPurchaseModal" class="modal hidden">
+        <div class="modal-overlay" onclick="closeAddPurchaseModal()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title-wrap">
+                    <div class="modal-icon orange">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="modal-title">Add Purchase Entry</h3>
+                        <p class="modal-subtitle">Deduct user wallet balance</p>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeAddPurchaseModal()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </button>
+            </div>
+            <form id="addPurchaseForm" class="modal-form">
+                <div class="input-wrapper">
+                    <label class="input-label">Search User</label>
+                    <div class="input-field">
+                        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                        </svg>
+                        <input type="text" id="purchaseUserSearch" placeholder="Type to search users..." autocomplete="off">
+                    </div>
+                </div>
+                <div class="input-wrapper">
+                    <label class="input-label">Select User</label>
+                    <select id="purchaseUserSelect" required size="5">
+                        <option value="">Select a user...</option>
+                    </select>
+                </div>
+                <div class="form-grid">
+                    <div class="input-wrapper">
+                        <label class="input-label">Amount (₹)</label>
+                        <input type="number" id="purchaseAmount" required placeholder="0.00" min="1" step="0.01">
+                    </div>
+                    <div class="input-wrapper">
+                        <label class="input-label">Note / Remark (Optional)</label>
+                        <input type="text" id="purchaseNote" placeholder="Enter note / UTR">
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeAddPurchaseModal()">Cancel</button>
+                    <button type="submit" class="btn btn-danger">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                        </svg>
+                        Submit Purchase
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Create Employee Modal -->
+    <div id="createEmployeeModal" class="modal hidden">
+        <div class="modal-overlay" onclick="closeCreateEmployeeModal()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title-wrap">
+                    <div class="modal-icon blue">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm9-3v6m-3-3h6"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="modal-title">Create New Employee</h3>
+                        <p class="modal-subtitle">Add a new employee and set permissions</p>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeCreateEmployeeModal()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </button>
+            </div>
+            <form id="createEmployeeForm" class="modal-form">
+                <div class="form-grid">
+                    <div class="input-wrapper">
+                       <label class="input-label">Full Name</label>
+                       <input type="text" id="newEmpName" required placeholder="Enter employee full name" autocomplete="off">
+                   </div>
+                   <div class="input-wrapper">
+                       <label class="input-label">Email Address</label>
+                       <input type="email" id="newEmpEmail" required placeholder="employee@entrykaro.com" autocomplete="off">
+                   </div>
+                   <div class="input-wrapper">
+                       <label class="input-label">Temporary Password</label>
+                       <input type="password" id="newEmpPassword" required placeholder="rakibul@123" autocomplete="off">
+                   </div>
+                   <div class="input-wrapper">
+                       <label class="input-label">Panel Enabled</label>
+                       <select id="newEmpEnabled" required>
+                           <option value="true" selected>Enabled</option>
+                           <option value="false">Disabled</option>
+                       </select>
+                   </div>
+                </div>
+                <div style="margin: var(--space-4) 0;">
+                   <label class="input-label" style="display: block; margin-bottom: var(--space-2);">Permissions Manager</label>
+                   <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-2);">
+                       <label style="display: flex; align-items: center; gap: var(--space-2); cursor: pointer; font-size: var(--text-sm);">
+                           <input type="checkbox" id="perm_dashboard" checked> Dashboard Card
+                       </label>
+                       <label style="display: flex; align-items: center; gap: var(--space-2); cursor: pointer; font-size: var(--text-sm);">
+                           <input type="checkbox" id="perm_received" checked> Received Entry
+                       </label>
+                       <label style="display: flex; align-items: center; gap: var(--space-2); cursor: pointer; font-size: var(--text-sm);">
+                           <input type="checkbox" id="perm_purchase" checked> Purchase Entry
+                       </label>
+                       <label style="display: flex; align-items: center; gap: var(--space-2); cursor: pointer; font-size: var(--text-sm);">
+                           <input type="checkbox" id="perm_upi" checked> UPI Management
+                       </label>
+                       <label style="display: flex; align-items: center; gap: var(--space-2); cursor: pointer; font-size: var(--text-sm);">
+                           <input type="checkbox" id="perm_idAccount" checked> ID Account Mgmt
+                       </label>
+                       <label style="display: flex; align-items: center; gap: var(--space-2); cursor: pointer; font-size: var(--text-sm);">
+                           <input type="checkbox" id="perm_notebook" checked> Private Notebook
+                       </label>
+                       <label style="display: flex; align-items: center; gap: var(--space-2); cursor: pointer; font-size: var(--text-sm);">
+                           <input type="checkbox" id="perm_search" checked> Global Search
+                       </label>
+                       <label style="display: flex; align-items: center; gap: var(--space-2); cursor: pointer; font-size: var(--text-sm);">
+                           <input type="checkbox" id="perm_profile" checked> Profile Info
+                       </label>
+                   </div>
+               </div>
+               <div class="modal-actions">
+                   <button type="button" class="btn btn-secondary" onclick="closeCreateEmployeeModal()">Cancel</button>
+                   <button type="submit" class="btn btn-primary">
+                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                           <path d="M12 4v16m8-8H4"/>
+                       </svg>
+                       Create Employee
+                   </button>
+               </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Employee Modal -->
+    <div id="editEmployeeModal" class="modal hidden">
+        <div class="modal-overlay" onclick="closeEditEmployeeModal()"></div>
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <div class="modal-title-wrap">
+                    <div class="modal-icon orange">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="modal-title" id="editEmpTitle">Edit Employee Details</h3>
+                        <p class="modal-subtitle" id="editEmpSubtitle">Modify permissions and panel access</p>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeEditEmployeeModal()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </button>
+            </div>
+            <form id="editEmployeeForm" class="modal-form">
+                <input type="hidden" id="editEmpId">
+                <input type="hidden" id="editEmpEmail">
+                <div class="form-grid">
+                    <div class="input-wrapper">
+                        <label class="input-label">Full Name</label>
+                        <input type="text" id="editEmpName" required placeholder="Enter employee full name" autocomplete="off">
+                    </div>
+                    <div class="input-wrapper">
+                        <label class="input-label">Panel Enabled</label>
+                        <select id="editEmpEnabled" required>
+                            <option value="true">Enabled</option>
+                            <option value="false">Disabled</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="margin: var(--space-4) 0;">
+                    <label class="input-label" style="display: block; margin-bottom: var(--space-2);">Permissions Manager</label>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-2);">
+                        <label style="display: flex; align-items: center; gap: var(--space-2); cursor: pointer; font-size: var(--text-sm);">
+                            <input type="checkbox" id="edit_perm_dashboard"> Dashboard Card
+                        </label>
+                        <label style="display: flex; align-items: center; gap: var(--space-2); cursor: pointer; font-size: var(--text-sm);">
+                            <input type="checkbox" id="edit_perm_received"> Received Entry
+                        </label>
+                        <label style="display: flex; align-items: center; gap: var(--space-2); cursor: pointer; font-size: var(--text-sm);">
+                            <input type="checkbox" id="edit_perm_purchase"> Purchase Entry
+                        </label>
+                        <label style="display: flex; align-items: center; gap: var(--space-2); cursor: pointer; font-size: var(--text-sm);">
+                            <input type="checkbox" id="edit_perm_upi"> UPI Management
+                        </label>
+                        <label style="display: flex; align-items: center; gap: var(--space-2); cursor: pointer; font-size: var(--text-sm);">
+                            <input type="checkbox" id="edit_perm_idAccount"> ID Account Mgmt
+                        </label>
+                        <label style="display: flex; align-items: center; gap: var(--space-2); cursor: pointer; font-size: var(--text-sm);">
+                            <input type="checkbox" id="edit_perm_notebook"> Private Notebook
+                        </label>
+                        <label style="display: flex; align-items: center; gap: var(--space-2); cursor: pointer; font-size: var(--text-sm);">
+                            <input type="checkbox" id="edit_perm_search"> Global Search
+                        </label>
+                        <label style="display: flex; align-items: center; gap: var(--space-2); cursor: pointer; font-size: var(--text-sm);">
+                            <input type="checkbox" id="edit_perm_profile"> Profile Info
+                        </label>
+                    </div>
+                </div>
+                
+                <div style="margin-top: var(--space-4); border-top: 1px solid var(--border-primary); padding-top: var(--space-4);">
+                    <label class="input-label" style="display: block; margin-bottom: var(--space-2);">Employee Logs & Activity</label>
+                    <div id="editEmpLogsList" style="max-height: 150px; overflow-y: auto; font-family: var(--font-mono); font-size: var(--text-xs); color: var(--text-secondary); background: var(--bg-primary); padding: var(--space-2); border-radius: var(--radius-md); border: 1px solid var(--border-primary);">
+                        Loading employee activity logs...
+                    </div>
+                </div>
+                
+                <div class="modal-actions" style="margin-top: var(--space-6); display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; gap: var(--space-2);">
+                        <button type="button" class="btn btn-secondary" onclick="triggerEmpPasswordReset()" style="border-color: var(--warning); color: var(--warning);">
+                            Send Reset Email
+                        </button>
+                        <button type="button" class="btn btn-danger" onclick="triggerEmpDelete()">
+                            Delete Employee
+                        </button>
+                    </div>
+                    <div style="display: flex; gap: var(--space-2);">
+                        <button type="button" class="btn btn-secondary" onclick="closeEditEmployeeModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
                 </div>
             </form>
         </div>
