@@ -522,19 +522,25 @@
                                 <input type="text" id="userSearch" placeholder="Search by email..." autocomplete="off">
                             </div>
                             <div class="table-filters">
-                                <select class="filter-select" id="userStatusFilter">
-                                    <option value="all">All Status</option>
-                                    <option value="active">Active</option>
-                                    <option value="pending">Pending</option>
-                                    <option value="banned">Banned</option>
-                                </select>
-                            </div>
+                                 <select class="filter-select" id="userIdTypeFilter">
+                                     <option value="all">All Account Types</option>
+                                     <option value="ID1">ID 1 Only</option>
+                                     <option value="ID2">ID 2 Only</option>
+                                 </select>
+                                 <select class="filter-select" id="userStatusFilter">
+                                     <option value="all">All Status</option>
+                                     <option value="active">Active</option>
+                                     <option value="pending">Pending</option>
+                                     <option value="banned">Banned</option>
+                                 </select>
+                             </div>
                         </div>
                         <div class="table-container">
                             <table class="data-table" id="usersTable">
                                 <thead>
                                     <tr>
                                         <th>Email</th>
+                                        <th>Account Type</th>
                                         <th>Balance</th>
                                         <th>Status</th>
                                         <th>Last Login</th>
@@ -1020,6 +1026,8 @@
                                     </div>
                                     <span class="badge badge-success">Connected</span>
                                 </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -1176,10 +1184,17 @@
                         <label class="input-label">MPIN (4 digits)</label>
                         <input type="password" id="newUserMPIN" required placeholder="1234" maxlength="4" pattern="[0-9]{4}">
                     </div>
-                    <div class="input-wrapper full-width">
-                        <label class="input-label">Initial Balance (₹)</label>
-                        <input type="number" id="newUserBalance" value="0" min="0" step="0.01">
-                    </div>
+                    <div class="input-wrapper">
+                         <label class="input-label">Initial Balance (₹)</label>
+                         <input type="number" id="newUserBalance" value="0" min="0" step="0.01">
+                     </div>
+                     <div class="input-wrapper">
+                         <label class="input-label">Account Type</label>
+                         <select id="newUserIdType" required>
+                             <option value="ID1" selected>ID 1</option>
+                             <option value="ID2">ID 2</option>
+                         </select>
+                     </div>
                 </div>
                 <div class="modal-actions">
                     <button type="button" class="btn btn-secondary" onclick="closeCreateUserModal()">Cancel</button>
@@ -1227,12 +1242,19 @@
                         <label class="input-label">Balance (₹)</label>
                         <input type="number" id="editUserBalance" min="0" step="0.01">
                     </div>
-                    <div class="input-wrapper full-width">
+                    <div class="input-wrapper">
                         <label class="input-label">Status</label>
                         <select id="editUserStatus">
                             <option value="active">Active</option>
                             <option value="pending">Pending</option>
                             <option value="banned">Banned</option>
+                        </select>
+                    </div>
+                    <div class="input-wrapper">
+                        <label class="input-label">Account Type</label>
+                        <select id="editUserIdType" required>
+                            <option value="ID1">ID 1</option>
+                            <option value="ID2">ID 2</option>
                         </select>
                     </div>
                 </div>
