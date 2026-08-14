@@ -1,0 +1,2439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0f172a">
+    <title>Entry Karo - Admin Panel</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="screen">
+        <div class="login-container">
+            <div class="login-card">
+                <div class="logo-section">
+                    <div class="logo-glow"></div>
+                    <div class="logo-icon">
+                        <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="4" y="8" width="14" height="24" rx="2" fill="currentColor" fill-opacity="0.3"/>
+                            <rect x="22" y="8" width="14" height="24" rx="2" fill="currentColor"/>
+                            <circle cx="12" cy="20" r="3" fill="#0f172a"/>
+                            <circle cx="30" cy="20" r="3" fill="#0f172a"/>
+                        </svg>
+                    </div>
+                    <h1 class="app-title">Entry Karo</h1>
+                    <p class="app-subtitle">Admin Control Center</p>
+                </div>
+
+                <form id="loginForm" class="login-form">
+                    <div class="input-wrapper">
+                        <label class="input-label">Email Address</label>
+                        <div class="input-field">
+                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                            </svg>
+                            <input type="email" id="adminEmail" required placeholder="admin@entrykaro.com" autocomplete="email">
+                        </div>
+                    </div>
+
+                    <div class="input-wrapper">
+                        <label class="input-label">Password</label>
+                        <div class="input-field">
+                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+                            </svg>
+                            <input type="password" id="adminPassword" required placeholder="Enter password" autocomplete="current-password">
+                            <button type="button" class="toggle-password" id="togglePassword">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="loginError" class="error-message"></div>
+
+                    <button type="submit" class="btn btn-primary btn-full">
+                        <span class="btn-text">Sign In</span>
+                        <span class="btn-loader"></span>
+                    </button>
+                </form>
+
+                <div class="security-note">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-2.28 7.79-4.59 10.01L12 17.77l-2.41 3.23C7.28 19.78 5.53 16.11 5 11.99h7v-2L8.41 8.41 12 4.83l3.59 3.58L12 9.99v2z"/>
+                    </svg>
+                    <span>Secure SHA-256 encrypted connection</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Screen -->
+    <div id="dashboardScreen" class="screen hidden">
+        <!-- Mobile Header -->
+        <header class="mobile-header">
+            <button class="menu-btn" id="menuBtn" aria-label="Open menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 12h18M3 6h18M3 18h18"/>
+                </svg>
+            </button>
+            <div class="header-title">
+                <span class="header-icon">EK</span>
+                <span id="mobilePageTitle">Dashboard</span>
+            </div>
+            <button class="notification-btn" id="notificationBtn" aria-label="Notifications">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+                </svg>
+                <span class="badge" id="notificationBadge">0</span>
+            </button>
+        </header>
+
+        <!-- Sidebar Overlay -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon small">
+                    <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="4" y="8" width="14" height="24" rx="2" fill="currentColor" fill-opacity="0.3"/>
+                        <rect x="22" y="8" width="14" height="24" rx="2" fill="currentColor"/>
+                    </svg>
+                </div>
+                <div class="sidebar-brand">
+                    <span class="brand-name">Entry Karo</span>
+                    <span class="brand-tag">Admin Panel</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-page="dashboard">
+                    <div class="nav-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+                        </svg>
+                    </div>
+                    <span class="nav-text">Dashboard</span>
+                    <div class="nav-indicator"></div>
+                </a>
+                <a href="#" class="nav-item" data-page="approvals">
+                    <div class="nav-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                        </svg>
+                    </div>
+                    <span class="nav-text">User Approvals</span>
+                    <span class="nav-badge" id="approvalBadge">0</span>
+                    <div class="nav-indicator"></div>
+                </a>
+                <a href="#" class="nav-item" data-page="users">
+                    <div class="nav-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                        </svg>
+                    </div>
+                    <span class="nav-text">Users</span>
+                    <div class="nav-indicator"></div>
+                </a>
+                <a href="#" class="nav-item" data-page="deposits">
+                    <div class="nav-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/>
+                        </svg>
+                    </div>
+                    <span class="nav-text">Deposits</span>
+                    <span class="nav-badge" id="depositBadge">0</span>
+                    <div class="nav-indicator"></div>
+                </a>
+                <a href="#" class="nav-item" data-page="received">
+                    <div class="nav-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4z"/>
+                        </svg>
+                    </div>
+                    <span class="nav-text">Received</span>
+                    <div class="nav-indicator"></div>
+                </a>
+                <a href="#" class="nav-item" data-page="employees">
+                    <div class="nav-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm6 5H9m3-3v6"/>
+                        </svg>
+                    </div>
+                    <span class="nav-text">Employee Management</span>
+                    <div class="nav-indicator"></div>
+                </a>
+                <a href="#" class="nav-item" data-page="id-statements">
+                    <div class="nav-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 3v5h5M16 13H8m8 4H8m2-8H8"/>
+                        </svg>
+                    </div>
+                    <span class="nav-text">ID Management</span>
+                    <div class="nav-indicator"></div>
+                </a>
+                <a href="#" class="nav-item" data-page="subscriptions">
+                    <div class="nav-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                        </svg>
+                    </div>
+                    <span class="nav-text">Subscriptions</span>
+                    <span class="nav-badge" id="subPendingBadge" style="display:none; background: #e53935; color: white;">0</span>
+                    <div class="nav-indicator"></div>
+                </a>
+                <a href="#" class="nav-item" data-page="self-transfers">
+                    <div class="nav-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+                        </svg>
+                    </div>
+                    <span class="nav-text">Self Transfers</span>
+                    <span class="nav-badge" id="selfTransferPendingBadge" style="display:none; background: #e53935; color: white;">0</span>
+                    <div class="nav-indicator"></div>
+                </a>
+                <a href="#" class="nav-item" data-page="app-update">
+                    <div class="nav-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+                        </svg>
+                    </div>
+                    <span class="nav-text">App Update</span>
+                    <div class="nav-indicator"></div>
+                </a>
+                <a href="#" class="nav-item" data-page="settings">
+                    <div class="nav-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.488.488 0 0 0-.59.22L3.16 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.08.62-.08.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.58 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+                        </svg>
+                    </div>
+                    <span class="nav-text">Settings</span>
+                    <div class="nav-indicator"></div>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="admin-info">
+                    <div class="admin-avatar">
+                        <span id="adminInitials">A</span>
+                    </div>
+                    <div class="admin-details">
+                        <span class="admin-name" id="adminName">Admin</span>
+                        <span class="admin-role">Super Admin</span>
+                    </div>
+                </div>
+                <button class="btn btn-logout" id="logoutBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+                    </svg>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Desktop Header -->
+            <header class="desktop-header">
+                <div class="header-left">
+                    <h1 id="pageTitle">Dashboard</h1>
+                    <p class="header-subtitle" id="headerSubtitle">Welcome back! Here's what's happening today.</p>
+                </div>
+                <div class="header-right">
+                    <div class="header-actions">
+                        <button class="icon-btn" id="refreshBtn" title="Refresh Data">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+                            </svg>
+                        </button>
+                        <button class="icon-btn" id="fullscreenBtn" title="Toggle Fullscreen">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="header-time" id="headerTime"></div>
+                </div>
+            </header>
+
+            <!-- Pages Container -->
+            <div class="pages-container">
+                <!-- Dashboard Page -->
+                <div id="page-dashboard" class="page active">
+                    <!-- Stats Grid -->
+                    <div class="stats-grid">
+                        <div class="stat-card primary">
+                            <div class="stat-bg"></div>
+                            <div class="stat-content">
+                                <div class="stat-header">
+                                    <span class="stat-label">Total Users</span>
+                                    <div class="stat-trend up">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M7 14l5-5 5 5z"/>
+                                        </svg>
+                                        <span>+12%</span>
+                                    </div>
+                                </div>
+                                <div class="stat-value" id="totalUsers">0</div>
+                                <div class="stat-footer">
+                                    <div class="stat-bar">
+                                        <div class="stat-bar-fill" style="width: 75%"></div>
+                                    </div>
+                                    <span class="stat-desc">Active this month</span>
+                                </div>
+                            </div>
+                            <div class="stat-icon-wrap">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                                </svg>
+                            </div>
+                        </div>
+
+                        <div class="stat-card success">
+                            <div class="stat-bg"></div>
+                            <div class="stat-content">
+                                <div class="stat-header">
+                                    <span class="stat-label">Total Balance</span>
+                                    <div class="stat-trend up">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M7 14l5-5 5 5z"/>
+                                        </svg>
+                                        <span>+5%</span>
+                                    </div>
+                                </div>
+                                <div class="stat-value" id="totalBalance">₹0</div>
+                                <div class="stat-footer">
+                                    <div class="stat-bar">
+                                        <div class="stat-bar-fill" style="width: 60%"></div>
+                                    </div>
+                                    <span class="stat-desc">Across all wallets</span>
+                                </div>
+                            </div>
+                            <div class="stat-icon-wrap">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.91s4.17 1.39 4.17 3.91c-.01 1.83-1.38 2.83-3.12 3.16z"/>
+                                </svg>
+                            </div>
+                        </div>
+
+                        <div class="stat-card warning">
+                            <div class="stat-bg"></div>
+                            <div class="stat-content">
+                                <div class="stat-header">
+                                    <span class="stat-label">Pending Deposits</span>
+                                    <div class="stat-trend">
+                                        <span>Needs attention</span>
+                                    </div>
+                                </div>
+                                <div class="stat-value" id="pendingDeposits">0</div>
+                                <div class="stat-footer">
+                                    <div class="stat-bar">
+                                        <div class="stat-bar-fill" style="width: 45%"></div>
+                                    </div>
+                                    <span class="stat-desc">Awaiting approval</span>
+                                </div>
+                            </div>
+                            <div class="stat-icon-wrap">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                                </svg>
+                            </div>
+                        </div>
+
+                        <div class="stat-card info">
+                            <div class="stat-bg"></div>
+                            <div class="stat-content">
+                                <div class="stat-header">
+                                    <span class="stat-label">Active Now</span>
+                                    <div class="stat-trend up">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M7 14l5-5 5 5z"/>
+                                        </svg>
+                                        <span>Live</span>
+                                    </div>
+                                </div>
+                                <div class="stat-value" id="activeUsers">0</div>
+                                <div class="stat-footer">
+                                    <div class="stat-bar">
+                                        <div class="stat-bar-fill" style="width: 30%"></div>
+                                    </div>
+                                    <span class="stat-desc">Currently online</span>
+                                </div>
+                            </div>
+                            <div class="stat-icon-wrap">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dashboard Content Grid -->
+                    <div class="dashboard-grid">
+                        <!-- Recent Activity -->
+                        <div class="card activity-card">
+                            <div class="card-header">
+                                <div class="card-title-wrap">
+                                    <div class="card-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="card-title">Recent Activity</h3>
+                                        <p class="card-subtitle">Latest system events</p>
+                                    </div>
+                                </div>
+                                <button class="btn btn-text" onclick="refreshActivity()">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+                                    </svg>
+                                    Refresh
+                                </button>
+                            </div>
+                            <div class="activity-list" id="recentActivity">
+                                <div class="empty-state">
+                                    <div class="empty-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+                                        </svg>
+                                    </div>
+                                    <p>No recent activity</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Actions -->
+                        <div class="card actions-card">
+                            <div class="card-header">
+                                <div class="card-title-wrap">
+                                    <div class="card-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="card-title">Quick Actions</h3>
+                                        <p class="card-subtitle">Frequently used operations</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="quick-actions">
+                                <button class="action-tile" onclick="navigateTo('users')">
+                                    <div class="action-icon blue">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                                        </svg>
+                                    </div>
+                                    <span class="action-label">Manage Users</span>
+                                    <span class="action-desc" id="actionUserCount">0 users</span>
+                                </button>
+
+                                <button class="action-tile" onclick="navigateTo('deposits')">
+                                    <div class="action-icon orange">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/>
+                                        </svg>
+                                    </div>
+                                    <span class="action-label">Review Deposits</span>
+                                    <span class="action-desc" id="actionDepositCount">0 pending</span>
+                                </button>
+
+                                <button class="action-tile" onclick="navigateTo('received')">
+                                    <div class="action-icon green">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4z"/>
+                                        </svg>
+                                    </div>
+                                    <span class="action-label">Add Received</span>
+                                    <span class="action-desc">Credit user wallet</span>
+                                </button>
+
+                                <button class="action-tile" onclick="navigateTo('settings')">
+                                    <div class="action-icon purple">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06z"/>
+                                        </svg>
+                                    </div>
+                                    <span class="action-label">App Settings</span>
+                                    <span class="action-desc">Control & monitor</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Approvals Page -->
+                <div id="page-approvals" class="page hidden">
+                    <div class="page-header">
+                        <div class="page-header-left">
+                            <h2>User Approvals</h2>
+                            <p>Review and approve pending user accounts</p>
+                        </div>
+                        <div class="page-header-right">
+                            <button class="btn btn-secondary" onclick="loadUserApprovals()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+                                </svg>
+                                Refresh
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="table-container">
+                            <table class="data-table" id="approvalsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Email</th>
+                                        <th>User ID</th>
+                                        <th>Created Time</th>
+                                        <th class="actions-col">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="approvalsTableBody">
+                                    <!-- Dynamic content -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="noApprovalsMessage" class="empty-state-table hidden">
+                            <div class="empty-icon-large">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                </svg>
+                            </div>
+                            <h3>No Pending Approvals</h3>
+                            <p>All user registrations have been processed.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Users Page -->
+                <div id="page-users" class="page hidden">
+                    <div class="page-header">
+                        <div class="page-header-left">
+                            <h2>User Management</h2>
+                            <p>Manage user accounts and wallets</p>
+                        </div>
+                        <div class="page-header-right">
+                            <button class="btn btn-secondary" onclick="loadUsers()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+                                </svg>
+                                Refresh
+                            </button>
+                            <button class="btn btn-primary" onclick="openCreateUserModal()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                                </svg>
+                                Create User
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="table-header">
+                            <div class="search-box">
+                                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                                </svg>
+                                <input type="text" id="userSearch" placeholder="Search by email..." autocomplete="off">
+                            </div>
+                            <div class="table-filters">
+                                 <select class="filter-select" id="userIdTypeFilter">
+                                     <option value="all">All Account Types</option>
+                                     <option value="ID1">ID 1 Only</option>
+                                     <option value="ID2">ID 2 Only</option>
+                                 </select>
+                                 <select class="filter-select" id="userStatusFilter">
+                                     <option value="all">All Status</option>
+                                     <option value="active">Active</option>
+                                     <option value="pending">Pending</option>
+                                     <option value="banned">Banned</option>
+                                 </select>
+                             </div>
+                        </div>
+                        <div class="table-container">
+                            <table class="data-table" id="usersTable">
+                                <thead>
+                                    <tr>
+                                        <th>Email</th>
+                                        <th>Account Type</th>
+                                        <th>Balance</th>
+                                        <th>Status</th>
+                                        <th>Last Login</th>
+                                        <th class="actions-col">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersTableBody">
+                                    <!-- Dynamic content -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Profile/Detail Page -->
+                <div id="page-user-detail" class="page hidden">
+                    <div class="page-header">
+                        <div class="page-header-left">
+                            <button class="btn btn-back" onclick="navigateTo('users')">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                                </svg>
+                                Back to Users
+                            </button>
+                            <h2 id="userDetailTitle">User Profile</h2>
+                        </div>
+                        <div class="page-header-right">
+                            <button class="btn btn-secondary" onclick="openEditUserModalFromDetail()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                                </svg>
+                                Edit User
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="user-profile-grid">
+                        <!-- User Info Card -->
+                        <div class="card user-profile-card">
+                            <div class="profile-header">
+                                <div class="profile-avatar" id="detailUserAvatar">
+                                    <span>U</span>
+                                </div>
+                                <div class="profile-info">
+                                    <h3 id="detailUserName">User</h3>
+                                    <span class="profile-email" id="detailUserEmail">-</span>
+                                    <span class="status-badge" id="detailUserStatus">-</span>
+                                </div>
+                            </div>
+                            <div class="profile-stats">
+                                <div class="profile-stat">
+                                    <span class="stat-label">Wallet Balance</span>
+                                    <span class="stat-value highlight" id="detailUserBalance">₹0</span>
+                                </div>
+                                <div class="profile-stat">
+                                    <span class="stat-label">Last Login</span>
+                                    <span class="stat-value" id="detailUserLastLogin">Never</span>
+                                </div>
+                                <div class="profile-stat">
+                                    <span class="stat-label">Member Since</span>
+                                    <span class="stat-value" id="detailUserCreated">-</span>
+                                </div>
+                            </div>
+                            <div class="profile-actions">
+                                <button class="btn btn-primary" onclick="openResetModalFromDetail()">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zm0 9c-1.38 0-2.5-1.12-2.5-2.5S10.62 8.5 12 8.5s2.5 1.12 2.5 2.5S13.38 13.5 12 13.5z"/>
+                                    </svg>
+                                    Reset Password
+                                </button>
+                                <button class="btn btn-secondary" onclick="toggleUserBanFromDetail()" id="detailBanBtn">
+                                    Ban User
+                                </button>
+                                <button class="btn btn-danger" onclick="deleteUserFromDetail()">
+                                    Delete User
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Transaction Statement Card -->
+                        <div class="card transaction-card" id="bankStatementCard">
+                            <div class="card-header">
+                                <div class="card-title-wrap">
+                                    <div class="card-icon gold">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="card-title">Transaction Statement</h3>
+                                        <p class="card-subtitle">Complete financial history</p>
+                                    </div>
+                                </div>
+                                <div class="statement-actions">
+                                    <button class="btn btn-secondary" onclick="printStatement()">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/>
+                                        </svg>
+                                        Print
+                                    </button>
+                                    <button class="btn btn-primary" onclick="exportToPDF()">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                                        </svg>
+                                        Export PDF
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Bank Statement Header -->
+                            <div class="bank-statement-header" id="statementHeader">
+                                <div class="statement-logo">
+                                    <div class="logo-circle">
+                                        <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <rect x="4" y="8" width="14" height="24" rx="2" fill="currentColor" fill-opacity="0.3"/>
+                                            <rect x="22" y="8" width="14" height="24" rx="2" fill="currentColor"/>
+                                            <circle cx="12" cy="20" r="3" fill="#0f172a"/>
+                                            <circle cx="30" cy="20" r="3" fill="#0f172a"/>
+                                        </svg>
+                                    </div>
+                                    <div class="statement-company">
+                                        <h4>Entry Karo</h4>
+                                        <span>Account Statement</span>
+                                    </div>
+                                </div>
+                                <div class="statement-info">
+                                    <div class="info-row">
+                                        <span class="info-label">Account Holder:</span>
+                                        <span class="info-value" id="statementUserName">-</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label">Account ID:</span>
+                                        <span class="info-value" id="statementUserId">-</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label">Statement Period:</span>
+                                        <span class="info-value" id="statementPeriod">-</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="info-label">Generated On:</span>
+                                        <span class="info-value" id="statementDate">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Account Summary Cards -->
+                            <div class="account-summary-cards">
+                                <div class="account-card credit">
+                                    <div class="account-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M7 11l5-5 5 5M7 17l5-5 5 5"/>
+                                        </svg>
+                                    </div>
+                                    <div class="account-details">
+                                        <span class="account-label">Total Credits</span>
+                                        <span class="account-value" id="totalCredited">₹0.00</span>
+                                    </div>
+                                </div>
+                                <div class="account-card debit">
+                                    <div class="account-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M7 13l5 5 5-5M7 7l5 5 5-5"/>
+                                        </svg>
+                                    </div>
+                                    <div class="account-details">
+                                        <span class="account-label">Total Debits</span>
+                                        <span class="account-value" id="totalDebited">₹0.00</span>
+                                    </div>
+                                </div>
+                                <div class="account-card balance">
+                                    <div class="account-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="account-details">
+                                        <span class="account-label">Current Balance</span>
+                                        <span class="account-value" id="netBalance">₹0.00</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="transaction-tabs">
+                                <button class="tab-btn active" data-tab="all">All Transactions</button>
+                                <button class="tab-btn" data-tab="received">Credits</button>
+                                <button class="tab-btn" data-tab="deposit">Debits</button>
+                            </div>
+                            <div class="transaction-content">
+                                <div class="table-container bank-statement-table">
+                                    <table class="data-table" id="transactionTable">
+                                        <thead>
+                                            <tr>
+                                                <th class="col-date">Date & Time</th>
+                                                <th class="col-ref">Ref. No.</th>
+                                                <th class="col-desc">Description</th>
+                                                <th class="col-type">Type</th>
+                                                <th class="col-credit">Credit (₹)</th>
+                                                <th class="col-debit">Debit (₹)</th>
+                                                <th class="col-balance">Balance (₹)</th>
+                                                <th class="col-status">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="transactionTableBody">
+                                            <!-- Dynamic content -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            <!-- Statement Footer -->
+                            <div class="statement-footer">
+                                <p>This is a computer generated statement and does not require signature.</p>
+                                <p>For any queries, please contact support.</p>
+                            </div>
+                        </div>
+
+                        <!-- Individual History Cards -->
+                        <div class="card history-card">
+                            <div class="card-header">
+                                <div class="card-title-wrap">
+                                    <div class="card-icon blue">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4z"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="card-title">Received History</h3>
+                                        <p class="card-subtitle">Admin credited entries</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="table-container compact">
+                                <table class="data-table" id="receivedHistoryTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Amount</th>
+                                            <th>Note</th>
+                                            <th>Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="receivedHistoryBody">
+                                        <!-- Dynamic content -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="card history-card">
+                            <div class="card-header">
+                                <div class="card-title-wrap">
+                                    <div class="card-icon orange">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="card-title">Deposit History</h3>
+                                        <p class="card-subtitle">Deposit requests & status</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="table-container compact">
+                                <table class="data-table" id="depositHistoryTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Amount</th>
+                                            <th>UTR</th>
+                                            <th>Status</th>
+                                            <th>Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="depositHistoryBody">
+                                        <!-- Dynamic content -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Deposits Page -->
+                <div id="page-deposits" class="page hidden">
+                    <div class="page-header">
+                        <div class="page-header-left">
+                            <h2>Deposit Approvals</h2>
+                            <p>Review and process deposit requests</p>
+                        </div>
+                        <div class="page-header-right" style="display: flex; gap: var(--space-2);">
+                            <button class="btn btn-secondary" onclick="loadDeposits()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+                                </svg>
+                                Refresh
+                            </button>
+                            <button class="btn btn-danger" onclick="openAddPurchaseModal()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                                </svg>
+                                Add Purchase
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="table-filters-bar">
+                            <div class="filter-group">
+                                <label>Status</label>
+                                <select class="filter-select" id="depositStatusFilter">
+                                    <option value="all">All Status</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="approved">Approved</option>
+                                    <option value="rejected">Rejected</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="table-container">
+                            <table class="data-table" id="depositsTable">
+                                <thead>
+                                    <tr>
+                                        <th>User Email</th>
+                                        <th>Amount</th>
+                                        <th>UTR</th>
+                                        <th>Time</th>
+                                        <th>Status</th>
+                                        <th class="actions-col">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="depositsTableBody">
+                                    <!-- Dynamic content -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Received Entries Page -->
+                <div id="page-received" class="page hidden">
+                    <div class="page-header">
+                        <div class="page-header-left">
+                            <h2>Received Entries</h2>
+                            <p>Admin-created credit entries for users</p>
+                        </div>
+                        <div class="page-header-right">
+                            <button class="btn btn-secondary" onclick="loadReceivedEntries()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+                                </svg>
+                                Refresh
+                            </button>
+                            <button class="btn btn-primary" onclick="openAddReceivedModal()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                                </svg>
+                                Add Entry
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="table-container">
+                            <table class="data-table" id="receivedTable">
+                                <thead>
+                                    <tr>
+                                        <th>User Email</th>
+                                        <th>Amount</th>
+                                        <th>Note</th>
+                                        <th>Timestamp</th>
+                                        <th class="actions-col">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="receivedTableBody">
+                                    <!-- Dynamic content -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Page -->
+                <div id="page-settings" class="page hidden">
+                    <div class="page-header">
+                        <div class="page-header-left">
+                            <h2>Settings</h2>
+                            <p>Global app configuration and controls</p>
+                        </div>
+                    </div>
+
+                    <div class="settings-grid">
+                        <div class="card settings-card">
+                            <div class="card-header">
+                                <div class="card-title-wrap">
+                                    <div class="card-icon red">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="card-title">App Controls</h3>
+                                        <p class="card-subtitle">Emergency controls</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="settings-list">
+                                <div class="setting-item">
+                                    <div class="setting-info">
+                                        <span class="setting-name">Freeze Application</span>
+                                        <span class="setting-desc">Prevent all users from accessing the app</span>
+                                    </div>
+                                    <label class="toggle">
+                                        <input type="checkbox" id="freezeAppToggle">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                                <div class="setting-item">
+                                    <div class="setting-info">
+                                        <span class="setting-name">Enable Employee Panel</span>
+                                        <span class="setting-desc">Control access to the employee panel</span>
+                                    </div>
+                                    <label class="toggle">
+                                        <input type="checkbox" id="employeePanelToggle">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card settings-card">
+                            <div class="card-header">
+                                <div class="card-title-wrap">
+                                    <div class="card-icon blue">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="card-title">Call Monitoring</h3>
+                                        <p class="card-subtitle">Active group call status</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="settings-list">
+                                <div class="setting-item">
+                                    <div class="setting-info">
+                                        <span class="setting-name">Active Call Status</span>
+                                        <span class="setting-desc" id="activeCallStatus">No active call</span>
+                                    </div>
+                                    <button class="btn btn-secondary" id="endCallBtn" disabled onclick="endActiveCall()">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M12 9c-1.6 0-3.15.25-4.6.72v3.1c0 .39-.23.74-.56.9-.98.49-1.87 1.12-2.66 1.85-.18.18-.43.28-.7.28-.28 0-.53-.11-.71-.29L.29 13.08c-.18-.17-.29-.42-.29-.7 0-.28.11-.53.29-.71C3.34 8.78 7.46 7 12 7s8.66 1.78 11.71 4.67c.18.18.29.43.29.71 0 .28-.11.53-.29.71l-2.48 2.48c-.18.18-.43.29-.71.29-.27 0-.52-.11-.7-.28-.79-.74-1.69-1.36-2.67-1.85-.33-.16-.56-.51-.56-.9v-3.1C15.15 9.25 13.6 9 12 9z"/>
+                                        </svg>
+                                        End Call
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card settings-card">
+                            <div class="card-header">
+                                <div class="card-title-wrap">
+                                    <div class="card-icon green">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="card-title">System Info</h3>
+                                        <p class="card-subtitle">App version and status</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="settings-list">
+                                <div class="setting-item static">
+                                    <div class="setting-info">
+                                        <span class="setting-name">Version</span>
+                                        <span class="setting-desc">2.0.0 (Latest)</span>
+                                    </div>
+                                    <span class="badge badge-success">Up to date</span>
+                                </div>
+                                <div class="setting-item static">
+                                    <div class="setting-info">
+                                        <span class="setting-name">Database</span>
+                                        <span class="setting-desc">Firebase Firestore</span>
+                                    </div>
+                                    <span class="badge badge-success">Connected</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Employee Management Page -->
+                <div id="page-employees" class="page hidden">
+                    <div class="page-header">
+                        <div class="page-header-left">
+                            <h2>Employee Management</h2>
+                            <p>Manage employees, permissions, and panel access</p>
+                        </div>
+                        <div class="page-header-right">
+                            <button class="btn btn-primary" onclick="openCreateEmployeeModal()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm9-3v6m-3-3h6"/>
+                                </svg>
+                                Create Employee
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="table-header">
+                            <div class="search-box">
+                                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                                </svg>
+                                <input type="text" id="employeeSearch" placeholder="Search by email..." autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="table-container">
+                            <table class="data-table" id="employeesTable">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Status</th>
+                                        <th>Last Login</th>
+                                        <th>Online Status</th>
+                                        <th class="actions-col">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="employeesTableBody">
+                                    <!-- Dynamic content -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ID Statements Page -->
+                <div id="page-id-statements" class="page hidden">
+                    <div class="page-header">
+                        <div class="page-header-left">
+                            <h2>ID Management</h2>
+                            <p>Track business performance inside ID 1 and ID 2 sections</p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="table-header flex-col md:flex-row gap-4" style="align-items: stretch; display: flex; flex-direction: column;">
+                            <div class="flex flex-wrap gap-4 items-center flex-1" style="display: flex; flex-wrap: wrap; gap: var(--space-4);">
+                                <div class="search-box">
+                                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                                    </svg>
+                                    <input type="text" id="idStatementSearch" placeholder="Search by Employee/Remarks..." autocomplete="off">
+                                </div>
+                                <select class="filter-select" id="idTypeFilter">
+                                    <option value="all">All Accounts (ID 1 & ID 2)</option>
+                                    <option value="ID1">ID 1 Only</option>
+                                    <option value="ID2">ID 2 Only</option>
+                                </select>
+                                <select class="filter-select" id="idEntryTypeFilter">
+                                    <option value="all">All Types</option>
+                                    <option value="sell">Sell</option>
+                                    <option value="purchase">Purchase</option>
+                                </select>
+                                <input type="date" class="filter-select" id="idDateFilter" style="color-scheme: dark; border: 1px solid var(--border-primary); background: var(--bg-primary); padding: var(--space-2); border-radius: var(--radius-md); color: var(--text-primary);">
+                            </div>
+                            <div class="table-actions" style="margin-top: var(--space-4); display: flex; gap: var(--space-3);">
+                                <button class="btn btn-secondary" onclick="exportIDStatements('csv')">Export CSV</button>
+                                <button class="btn btn-primary" onclick="exportIDStatements('pdf')">Export PDF</button>
+                                <button class="btn btn-secondary" onclick="printIDStatements()" style="border-color: var(--accent-color); color: var(--accent-color);">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="vertical-align: middle; margin-right: 4px;">
+                                        <polyline points="6 9 6 2 18 2 18 9"/>
+                                        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+                                        <rect x="6" y="14" width="12" height="8"/>
+                                    </svg>
+                                    Print Statement
+                                </button>
+                            </div>
+                        </div>
+                        <div class="table-container">
+                            <table class="data-table" id="idStatementsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Account</th>
+                                        <th>Type</th>
+                                        <th>Amount</th>
+                                        <th>Employee Name</th>
+                                        <th>Remarks</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="idStatementsTableBody">
+                                    <!-- Dynamic content -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Subscriptions Page -->
+                <div id="page-subscriptions" class="page hidden">
+                    <div class="page-header">
+                        <div class="page-header-left">
+                            <h2>Subscription Management v2.0</h2>
+                            <p>Verify payment UTRs, manage active plans, control expiry dates, and configure UPI payment settings</p>
+                        </div>
+                        <div class="page-header-right">
+                            <button class="btn btn-secondary" onclick="loadSubscriptionsData()">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                                    <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                                </svg>
+                                Refresh Data
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Metric Overview Cards -->
+                    <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); margin-bottom: 24px;">
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: rgba(212, 175, 55, 0.1); color: #d4af37;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-label">Total Subscribers</span>
+                                <h3 class="stat-value" id="subMetricTotal">0</h3>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: rgba(76, 175, 80, 0.1); color: #4caf50;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3"/></svg>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-label">Active Subscribers</span>
+                                <h3 class="stat-value" id="subMetricActive" style="color: #4caf50;">0</h3>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: rgba(255, 193, 7, 0.1); color: #ffc107;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-label">Pending Requests</span>
+                                <h3 class="stat-value" id="subMetricPending" style="color: #ffc107;">0</h3>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: rgba(255, 152, 0, 0.1); color: #ff9800;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 14L21 3m0 0l-6.5 18a.55.55 0 0 1-1 0L10 14l-7-3.5a.55.55 0 0 1 0-1L21 3z"/></svg>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-label">Expired</span>
+                                <h3 class="stat-value" id="subMetricExpired" style="color: #ff9800;">0</h3>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: rgba(229, 57, 53, 0.1); color: #e53935;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.36 6.64a9 9 0 1 1-12.73 0M12 2v10"/></svg>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-label">Suspended / Rejected</span>
+                                <h3 class="stat-value" id="subMetricSuspended" style="color: #e53935;">0</h3>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: rgba(33, 150, 243, 0.1); color: #2196f3;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-label">Total Revenue</span>
+                                <h3 class="stat-value" id="subMetricRevenue" style="color: #2196f3;">₹0</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabs Header Bar -->
+                    <div class="card" style="margin-bottom: 20px; padding: 12px;">
+                        <div class="flex flex-wrap gap-2" style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <button class="btn btn-primary sub-tab-btn active" id="subTabPendingBtn" onclick="switchSubTab('pending')">
+                                Pending Requests (<span id="subPendingTabBadge">0</span>)
+                            </button>
+                            <button class="btn btn-secondary sub-tab-btn" id="subTabActiveBtn" onclick="switchSubTab('active')">
+                                Active Subscribers
+                            </button>
+                            <button class="btn btn-secondary sub-tab-btn" id="subTabExpiredBtn" onclick="switchSubTab('expired')">
+                                Expired Subscriptions
+                            </button>
+                            <button class="btn btn-secondary sub-tab-btn" id="subTabRejectedBtn" onclick="switchSubTab('rejected')">
+                                Rejected / Suspended
+                            </button>
+                            <button class="btn btn-secondary sub-tab-btn" id="subTabHistoryBtn" onclick="switchSubTab('history')">
+                                Subscription History
+                            </button>
+                            <button class="btn btn-secondary sub-tab-btn" id="subTabSettingsBtn" onclick="switchSubTab('settings')">
+                                Plans & Settings
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Search & Filter Bar (visible for table tabs) -->
+                    <div class="card" id="subFilterCard" style="margin-bottom: 20px; padding: 16px;">
+                        <div class="flex flex-wrap gap-4 items-center justify-between" style="display: flex; gap: 16px; flex-wrap: wrap;">
+                            <div class="search-box" style="flex: 1; min-width: 250px;">
+                                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                                </svg>
+                                <input type="text" id="subSearchInput" placeholder="Search by User Name, Email, UID or UTR..." onkeyup="filterSubTable()">
+                            </div>
+                            <input type="date" id="subDateFilter" class="filter-select" onchange="filterSubTable()" style="color-scheme: dark;">
+                        </div>
+                    </div>
+
+                    <!-- Sub Tab Content 1: Pending Requests -->
+                    <div id="subContentPending" class="sub-tab-content card">
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>User Details</th>
+                                        <th>UTR / Ref No.</th>
+                                        <th>Amount</th>
+                                        <th>Submitted Time</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="subPendingTableBody">
+                                    <tr><td colspan="6" style="text-align: center; padding: 24px; color: var(--text-secondary);">Loading pending requests...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Sub Tab Content 2: Active Subscribers -->
+                    <div id="subContentActive" class="sub-tab-content card hidden">
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Subscriber</th>
+                                        <th>Plan & Price</th>
+                                        <th>Latest UTR</th>
+                                        <th>Expiry Date</th>
+                                        <th>Days Left</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="subActiveTableBody">
+                                    <tr><td colspan="6" style="text-align: center; padding: 24px; color: var(--text-secondary);">Loading active subscribers...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Sub Tab Content 3: Expired Subscriptions -->
+                    <div id="subContentExpired" class="sub-tab-content card hidden">
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>User Details</th>
+                                        <th>Plan</th>
+                                        <th>Last UTR</th>
+                                        <th>Expired On</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="subExpiredTableBody">
+                                    <tr><td colspan="5" style="text-align: center; padding: 24px; color: var(--text-secondary);">Loading expired subscriptions...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Sub Tab Content 4: Rejected / Suspended -->
+                    <div id="subContentRejected" class="sub-tab-content card hidden">
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>User</th>
+                                        <th>Status</th>
+                                        <th>Reason / Remarks</th>
+                                        <th>Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="subRejectedTableBody">
+                                    <tr><td colspan="5" style="text-align: center; padding: 24px; color: var(--text-secondary);">Loading rejected & suspended records...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Sub Tab Content 5: Subscription History Log -->
+                    <div id="subContentHistory" class="sub-tab-content card hidden">
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Timestamp</th>
+                                        <th>User UID</th>
+                                        <th>Action</th>
+                                        <th>Previous -> New Status</th>
+                                        <th>Amount / UTR</th>
+                                        <th>Performed By</th>
+                                        <th>Remark</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="subHistoryTableBody">
+                                    <tr><td colspan="7" style="text-align: center; padding: 24px; color: var(--text-secondary);">Loading subscription history...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Sub Tab Content 6: Plans & Settings -->
+                    <div id="subContentSettings" class="sub-tab-content card hidden" style="padding: 24px;">
+                        <h3 style="color: var(--gold-color); margin-bottom: 16px;">Subscription System Controls & Payment Settings</h3>
+                        
+                        <div class="settings-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px;">
+                            <!-- Gate Control Box -->
+                            <div class="card" style="padding: 20px; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-primary);">
+                                <h4 style="margin-bottom: 12px; color: var(--text-primary);">Migration & System Switches</h4>
+                                
+                                <div class="form-group" style="margin-bottom: 16px;">
+                                    <label class="toggle-container flex items-center justify-between" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
+                                        <div>
+                                            <span style="font-weight: 600; color: var(--gold-color);">Enable Subscription Gate</span>
+                                            <p style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">When enabled, non-paying users are blocked after MPIN verification.</p>
+                                        </div>
+                                        <input type="checkbox" id="settingSubGateToggle" style="transform: scale(1.4);">
+                                    </label>
+                                </div>
+
+                                <div class="form-group" style="margin-bottom: 16px;">
+                                    <label class="toggle-container flex items-center justify-between" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
+                                        <div>
+                                            <span style="font-weight: 600; color: #e53935;">Maintenance Mode</span>
+                                            <p style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Temporarily disable new subscription payment submissions.</p>
+                                        </div>
+                                        <input type="checkbox" id="settingSubMaintenanceToggle" style="transform: scale(1.4);">
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Pricing & Duration Settings -->
+                            <div class="card" style="padding: 20px; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-primary);">
+                                <h4 style="margin-bottom: 12px; color: var(--text-primary);">Plan Pricing & Duration</h4>
+                                
+                                <div class="form-group" style="margin-bottom: 12px;">
+                                    <label>Plan Name</label>
+                                    <input type="text" id="settingPlanName" class="form-input" placeholder="Monthly Subscription">
+                                </div>
+
+                                <div class="form-group" style="margin-bottom: 12px;">
+                                    <label>Price (₹)</label>
+                                    <input type="number" id="settingMonthlyPrice" class="form-input" placeholder="149">
+                                </div>
+
+                                <div class="form-group" style="margin-bottom: 12px;">
+                                    <label>Duration (Days)</label>
+                                    <input type="number" id="settingDurationDays" class="form-input" placeholder="30">
+                                </div>
+                            </div>
+
+                            <!-- UPI & QR Settings -->
+                            <div class="card" style="padding: 20px; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-primary);">
+                                <h4 style="margin-bottom: 12px; color: var(--text-primary);">UPI & QR Details</h4>
+                                
+                                <div class="form-group" style="margin-bottom: 12px;">
+                                    <label>Configured UPI ID</label>
+                                    <input type="text" id="settingUpiId" class="form-input" placeholder="entrykaro@upi">
+                                </div>
+
+                                <div class="form-group" style="margin-bottom: 12px;">
+                                    <label>QR Image URL (or upload below)</label>
+                                    <input type="text" id="settingQrImageUrl" class="form-input" placeholder="https://...">
+                                </div>
+
+                                <div class="form-group" style="margin-bottom: 12px;">
+                                    <label>Payment Instructions</label>
+                                    <textarea id="settingPaymentInstructions" class="form-input" rows="2" placeholder="Pay ₹149 through the UPI ID/QR..."></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Rules & Bounds -->
+                            <div class="card" style="padding: 20px; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-primary);">
+                                <h4 style="margin-bottom: 12px; color: var(--text-primary);">Validation & Reminder Rules</h4>
+                                
+                                <div class="flex gap-4" style="display: flex; gap: 12px;">
+                                    <div class="form-group" style="flex: 1;">
+                                        <label>Min UTR Length</label>
+                                        <input type="number" id="settingUtrMinLength" class="form-input" value="10">
+                                    </div>
+                                    <div class="form-group" style="flex: 1;">
+                                        <label>Max UTR Length</label>
+                                        <input type="number" id="settingUtrMaxLength" class="form-input" value="22">
+                                    </div>
+                                </div>
+
+                                <div class="form-group" style="margin-top: 12px; margin-bottom: 12px;">
+                                    <label>Renewal Reminder (Days before expiry)</label>
+                                    <input type="number" id="settingReminderDays" class="form-input" value="5">
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Grace Period (Days after expiry)</label>
+                                    <input type="number" id="settingGracePeriod" class="form-input" value="0">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 24px; text-align: right;">
+                            <button class="btn btn-primary" onclick="saveSubscriptionSettings()" style="padding: 12px 32px; font-weight: bold;">
+                                Save Subscription Settings
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SELF TRANSFERS PAGE -->
+            <div id="page-self-transfers" class="page hidden">
+                <div class="page-container">
+                    <!-- Metric Cards Grid -->
+                    <div class="metrics-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: rgba(255, 193, 7, 0.1); color: #ffc107;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-label">Pending Requests</span>
+                                <h3 class="stat-value" id="stMetricPending" style="color: #ffc107;">0</h3>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: rgba(76, 175, 80, 0.1); color: #4caf50;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3"/></svg>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-label">Approved Today</span>
+                                <h3 class="stat-value" id="stMetricApprovedToday" style="color: #4caf50;">0</h3>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: rgba(229, 57, 53, 0.1); color: #e53935;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.36 6.64a9 9 0 1 1-12.73 0M12 2v10"/></svg>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-label">Rejected Today</span>
+                                <h3 class="stat-value" id="stMetricRejectedToday" style="color: #e53935;">0</h3>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: rgba(33, 150, 243, 0.1); color: #2196f3;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-label">Total Transferred</span>
+                                <h3 class="stat-value" id="stMetricTotalAmount" style="color: #2196f3;">₹0</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabs Header Bar -->
+                    <div class="card" style="margin-bottom: 20px; padding: 12px;">
+                        <div class="flex flex-wrap gap-2" style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <button class="btn btn-primary st-tab-btn active" id="stTabPendingBtn" onclick="switchStTab('pending')">
+                                Pending Requests (<span id="stPendingTabBadge">0</span>)
+                            </button>
+                            <button class="btn btn-secondary st-tab-btn" id="stTabApprovedBtn" onclick="switchStTab('approved')">
+                                Approved Transfers
+                            </button>
+                            <button class="btn btn-secondary st-tab-btn" id="stTabRejectedBtn" onclick="switchStTab('rejected')">
+                                Rejected Transfers
+                            </button>
+                            <button class="btn btn-secondary st-tab-btn" id="stTabAllBtn" onclick="switchStTab('all')">
+                                All Transfer Records
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Search & Filter Bar -->
+                    <div class="card" style="margin-bottom: 20px; padding: 16px;">
+                        <div class="flex flex-wrap gap-4 items-center justify-between" style="display: flex; gap: 16px; flex-wrap: wrap;">
+                            <div class="search-box" style="flex: 1; min-width: 250px;">
+                                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                                </svg>
+                                <input type="text" id="stSearchInput" placeholder="Search by Request ID, Sender Gmail, Recipient Gmail..." onkeyup="filterStTable()">
+                            </div>
+                            <input type="date" id="stDateFilter" class="filter-select" onchange="filterStTable()" style="color-scheme: dark;">
+                        </div>
+                    </div>
+
+                    <!-- Self Transfer Tab Contents -->
+                    <div class="card">
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Submitted Time</th>
+                                        <th>Request ID</th>
+                                        <th>Sender Details</th>
+                                        <th>Recipient Details</th>
+                                        <th>Amount</th>
+                                        <th>Note</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="stTableBody">
+                                    <tr><td colspan="8" style="text-align: center; padding: 24px; color: var(--text-secondary);">Loading self transfer requests...</td></tr>
+                                </tbody>
+                            </table>
+                    </div>
+                </div>
+            </div>
+            </div>
+
+            <!-- App Update Page -->
+            <div id="page-app-update" class="page hidden">
+                <div class="page-container">
+                    <div class="page-header" style="margin-bottom: 24px;">
+                        <div class="page-header-left">
+                            <h2 style="font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 4px;">App Update Management</h2>
+                            <p style="color: var(--text-secondary); font-size: 0.9rem;">Manage Android release version, direct APK download URL, update message, and force update requirements.</p>
+                        </div>
+                    </div>
+
+                    <div class="app-update-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px;">
+                        <!-- Configuration Form Card -->
+                        <div class="card" style="background: var(--bg-card, #1c1c1c); border: 1px solid var(--border-color, rgba(255,255,255,0.1)); border-radius: 16px;">
+                            <div class="card-header" style="padding: 16px 20px; border-bottom: 1px solid var(--border-color, rgba(255,255,255,0.1));">
+                                <h3 style="font-size: 1.1rem; font-weight: 600; color: var(--gold-color, #d4af37);">Publish New Android Update</h3>
+                            </div>
+                            <div class="card-body" style="padding: 20px;">
+                                <form id="appUpdateForm" onsubmit="handleAppUpdateSubmit(event)">
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                                        <div class="input-wrapper">
+                                            <label class="input-label" style="display: block; margin-bottom: 6px; font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Latest Version Code <span style="color: #e53935;">*</span></label>
+                                            <div class="input-field">
+                                                <input type="number" id="updateVersionCode" required placeholder="e.g. 105" min="1" value="105" style="width: 100%; padding: 10px 14px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color, rgba(255,255,255,0.1)); border-radius: 8px; color: #fff;">
+                                            </div>
+                                            <small style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px; display: block;">Build integer (e.g. 105)</small>
+                                        </div>
+                                        <div class="input-wrapper">
+                                            <label class="input-label" style="display: block; margin-bottom: 6px; font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Version Name <span style="color: #e53935;">*</span></label>
+                                            <div class="input-field">
+                                                <input type="text" id="updateVersionName" required placeholder="e.g. 1.0.5" value="1.0.5" style="width: 100%; padding: 10px 14px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color, rgba(255,255,255,0.1)); border-radius: 8px; color: #fff;">
+                                            </div>
+                                            <small style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px; display: block;">Version string (e.g. 1.0.5)</small>
+                                        </div>
+                                    </div>
+
+                                    <div class="input-wrapper" style="margin-bottom: 16px;">
+                                        <label class="input-label" style="display: block; margin-bottom: 6px; font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Direct APK Download URL (HTTPS) <span style="color: #e53935;">*</span></label>
+                                        <div class="input-field">
+                                            <input type="url" id="updateDownloadUrl" required placeholder="https://example.com/downloads/entrykaro-v1.0.5.apk" style="width: 100%; padding: 10px 14px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color, rgba(255,255,255,0.1)); border-radius: 8px; color: #fff;">
+                                        </div>
+                                        <small style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px; display: block;">Must be a valid secure HTTPS direct APK link</small>
+                                    </div>
+
+                                    <div class="input-wrapper" style="margin-bottom: 16px;">
+                                        <label class="input-label" style="display: block; margin-bottom: 6px; font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Update Message / Release Notes <span style="color: #e53935;">*</span></label>
+                                        <textarea id="updateMessageText" rows="3" required placeholder="A new version of Entry Karo is available. Please update to continue using the app." style="width: 100%; padding: 10px 14px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color, rgba(255,255,255,0.1)); border-radius: 8px; color: #fff; resize: vertical;">A new version of Entry Karo is available. Please update to continue using the app.</textarea>
+                                    </div>
+
+                                    <div class="input-wrapper" style="margin-bottom: 24px; padding: 14px; background: rgba(255,255,255,0.03); border-radius: 10px; border: 1px solid var(--border-color, rgba(255,255,255,0.1)); display: flex; align-items: center; justify-content: space-between;">
+                                        <div>
+                                            <label class="input-label" style="font-size: 0.9rem; font-weight: 600; color: #fff; margin-bottom: 2px; display: block;">Force Update Required</label>
+                                            <small style="font-size: 0.78rem; color: var(--text-secondary);">When ON, users on older versions cannot dismiss or bypass update dialog.</small>
+                                        </div>
+                                        <label class="switch" style="position: relative; display: inline-block; width: 48px; height: 26px; flex-shrink: 0;">
+                                            <input type="checkbox" id="updateForceToggle" checked style="opacity: 0; width: 0; height: 0;">
+                                            <span class="slider round" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.2); transition: .3s; border-radius: 26px;"></span>
+                                        </label>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary" id="saveAppUpdateBtn" style="width: 100%; padding: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                                        <span>Save & Publish Update</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Current Live Version Preview Card -->
+                        <div class="card" style="background: var(--bg-card, #1c1c1c); border: 1px solid var(--border-color, rgba(255,255,255,0.1)); border-radius: 16px;">
+                            <div class="card-header" style="padding: 16px 20px; border-bottom: 1px solid var(--border-color, rgba(255,255,255,0.1)); display: flex; align-items: center; justify-content: space-between;">
+                                <h3 style="font-size: 1.1rem; font-weight: 600; color: #fff;">Current Published Release</h3>
+                                <span id="liveForceBadge" style="padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; background: rgba(76, 175, 80, 0.2); color: #4caf50; border: 1px solid rgba(76, 175, 80, 0.4);">Force Update: ON</span>
+                            </div>
+                            <div class="card-body" style="padding: 20px;">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">
+                                    <div style="padding: 14px; background: rgba(255,255,255,0.03); border-radius: 10px; border: 1px solid var(--border-color, rgba(255,255,255,0.1));">
+                                        <span style="font-size: 0.75rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">Version Name</span>
+                                        <span id="liveVersionName" style="font-size: 1.2rem; font-weight: 700; color: #fff;">1.0.0</span>
+                                    </div>
+                                    <div style="padding: 14px; background: rgba(212, 175, 55, 0.1); border-radius: 10px; border: 1px solid rgba(212, 175, 55, 0.3);">
+                                        <span style="font-size: 0.75rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">Version Code</span>
+                                        <span id="liveVersionCode" style="font-size: 1.2rem; font-weight: 700; color: var(--gold-color, #d4af37);">100</span>
+                                    </div>
+                                </div>
+
+                                <div style="margin-bottom: 16px;">
+                                    <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600; display: block; margin-bottom: 4px;">APK Download URL</label>
+                                    <div style="display: flex; align-items: center; gap: 8px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid var(--border-color, rgba(255,255,255,0.1));">
+                                        <span id="liveDownloadUrl" style="font-size: 0.82rem; color: #4fc3f7; font-family: monospace; word-break: break-all; flex: 1;">Not configured</span>
+                                        <a href="#" id="liveDownloadLink" target="_blank" style="color: var(--gold-color, #d4af37); display: flex; align-items: center;" title="Open Link">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <div style="margin-bottom: 16px;">
+                                    <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600; display: block; margin-bottom: 4px;">Update Message</label>
+                                    <p id="liveUpdateMessage" style="font-size: 0.85rem; color: var(--text-primary); background: rgba(255,255,255,0.03); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color, rgba(255,255,255,0.1)); line-height: 1.4;">No message set.</p>
+                                </div>
+
+                                <div style="margin-top: 20px; padding-top: 12px; border-top: 1px solid var(--border-color, rgba(255,255,255,0.1)); display: flex; align-items: center; justify-content: space-between; font-size: 0.78rem; color: var(--text-secondary);">
+                                    <span>Last Published:</span>
+                                    <span id="liveUpdatedAt" style="font-weight: 600; color: #fff;">Never</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <!-- Create User Modal -->
+    <div id="createUserModal" class="modal hidden">
+        <div class="modal-overlay" onclick="closeCreateUserModal()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title-wrap">
+                    <div class="modal-icon blue">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="modal-title">Create New User</h3>
+                        <p class="modal-subtitle">Add a new user account</p>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeCreateUserModal()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </button>
+            </div>
+            <form id="createUserForm" class="modal-form">
+                <div class="form-grid">
+                    <div class="input-wrapper">
+                        <label class="input-label">User ID</label>
+                        <input type="text" id="newUserId" required placeholder="Enter unique user ID" autocomplete="off">
+                    </div>
+                    <div class="input-wrapper">
+                        <label class="input-label">Email (Optional)</label>
+                        <input type="email" id="newUserEmail" placeholder="user@example.com">
+                    </div>
+                    <div class="input-wrapper">
+                        <label class="input-label">Password</label>
+                        <input type="password" id="newUserPassword" required placeholder="Create password">
+                    </div>
+                    <div class="input-wrapper">
+                        <label class="input-label">MPIN (4 digits)</label>
+                        <input type="password" id="newUserMPIN" required placeholder="1234" maxlength="4" pattern="[0-9]{4}">
+                    </div>
+                    <div class="input-wrapper">
+                         <label class="input-label">Initial Balance (₹)</label>
+                         <input type="number" id="newUserBalance" value="0" min="0" step="0.01">
+                     </div>
+                     <div class="input-wrapper">
+                         <label class="input-label">Account Type</label>
+                         <select id="newUserIdType" required>
+                             <option value="ID1" selected>ID 1</option>
+                             <option value="ID2">ID 2</option>
+                         </select>
+                     </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeCreateUserModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Create User
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div id="editUserModal" class="modal hidden">
+        <div class="modal-overlay" onclick="closeEditUserModal()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title-wrap">
+                    <div class="modal-icon orange">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="modal-title">Edit User</h3>
+                        <p class="modal-subtitle">Update user details</p>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeEditUserModal()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </button>
+            </div>
+            <form id="editUserForm" class="modal-form">
+                <input type="hidden" id="editUserId">
+                <div class="form-grid">
+                    <div class="input-wrapper">
+                        <label class="input-label">Email</label>
+                        <input type="email" id="editUserEmail" placeholder="user@example.com">
+                    </div>
+                    <div class="input-wrapper">
+                        <label class="input-label">Balance (₹)</label>
+                        <input type="number" id="editUserBalance" min="0" step="0.01">
+                    </div>
+                    <div class="input-wrapper">
+                        <label class="input-label">Status</label>
+                        <select id="editUserStatus">
+                            <option value="active">Active</option>
+                            <option value="pending">Pending</option>
+                            <option value="banned">Banned</option>
+                        </select>
+                    </div>
+                    <div class="input-wrapper">
+                        <label class="input-label">Account Type</label>
+                        <select id="editUserIdType" required>
+                            <option value="ID1">ID 1</option>
+                            <option value="ID2">ID 2</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeEditUserModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Reset Password Modal -->
+    <div id="resetPasswordModal" class="modal hidden">
+        <div class="modal-overlay" onclick="closeResetPasswordModal()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title-wrap">
+                    <div class="modal-icon purple">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zm0 9c-1.38 0-2.5-1.12-2.5-2.5S10.62 8.5 12 8.5s2.5 1.12 2.5 2.5S13.38 13.5 12 13.5z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="modal-title">Reset Credentials</h3>
+                        <p class="modal-subtitle">Set new password and MPIN</p>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeResetPasswordModal()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </button>
+            </div>
+            <form id="resetPasswordForm" class="modal-form">
+                <input type="hidden" id="resetUserId">
+                <div class="input-wrapper">
+                    <label class="input-label">New Password</label>
+                    <input type="password" id="newResetPassword" required placeholder="Enter new password">
+                </div>
+                <div class="input-wrapper">
+                    <label class="input-label">New MPIN (4 digits)</label>
+                    <input type="password" id="newResetMPIN" required placeholder="0000" maxlength="4" pattern="[0-9]{4}">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeResetPasswordModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Reset Credentials</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Received Entry Modal -->
+    <div id="addReceivedModal" class="modal hidden">
+        <div class="modal-overlay" onclick="closeAddReceivedModal()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title-wrap">
+                    <div class="modal-icon green">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm0-4h-2V6h2v4z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="modal-title">Add Received Entry</h3>
+                        <p class="modal-subtitle">Credit user wallet</p>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeAddReceivedModal()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </button>
+            </div>
+            <form id="addReceivedForm" class="modal-form">
+                <div class="input-wrapper">
+                    <label class="input-label">Search User</label>
+                    <div class="input-field">
+                        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                        </svg>
+                        <input type="text" id="receivedUserSearch" placeholder="Type to search users..." autocomplete="off">
+                    </div>
+                </div>
+                <div class="input-wrapper">
+                    <label class="input-label">Select User</label>
+                    <select id="receivedUserSelect" required size="5">
+                        <option value="">Select a user...</option>
+                    </select>
+                </div>
+                <div class="form-grid">
+                    <div class="input-wrapper">
+                        <label class="input-label">Amount (₹)</label>
+                        <input type="number" id="receivedAmount" required placeholder="0.00" min="1" step="0.01">
+                    </div>
+                    <div class="input-wrapper">
+                        <label class="input-label">Note (Optional)</label>
+                        <input type="text" id="receivedNote" placeholder="Enter note">
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeAddReceivedModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Add Entry
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Purchase Entry Modal (Admin Panel) -->
+    <div id="addPurchaseModal" class="modal hidden">
+        <div class="modal-overlay" onclick="closeAddPurchaseModal()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title-wrap">
+                    <div class="modal-icon orange">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="modal-title">Add Purchase Entry</h3>
+                        <p class="modal-subtitle">Deduct user wallet balance</p>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeAddPurchaseModal()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </button>
+            </div>
+            <form id="addPurchaseForm" class="modal-form">
+                <div class="input-wrapper">
+                    <label class="input-label">Search User</label>
+                    <div class="input-field">
+                        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                        </svg>
+                        <input type="text" id="purchaseUserSearch" placeholder="Type to search users..." autocomplete="off">
+                    </div>
+                </div>
+                <div class="input-wrapper">
+                    <label class="input-label">Select User</label>
+                    <select id="purchaseUserSelect" required size="5">
+                        <option value="">Select a user...</option>
+                    </select>
+                </div>
+                <div class="form-grid">
+                    <div class="input-wrapper">
+                        <label class="input-label">Amount (₹)</label>
+                        <input type="number" id="purchaseAmount" required placeholder="0.00" min="1" step="0.01">
+                    </div>
+                    <div class="input-wrapper">
+                        <label class="input-label">Note / Remark (Optional)</label>
+                        <input type="text" id="purchaseNote" placeholder="Enter note / UTR">
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeAddPurchaseModal()">Cancel</button>
+                    <button type="submit" class="btn btn-danger">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                        </svg>
+                        Submit Purchase
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Create Employee Modal -->
+    <div id="createEmployeeModal" class="modal hidden">
+        <div class="modal-overlay" onclick="closeCreateEmployeeModal()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title-wrap">
+                    <div class="modal-icon blue">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm9-3v6m-3-3h6"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="modal-title">Create New Employee</h3>
+                        <p class="modal-subtitle">Add a new employee and set permissions</p>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeCreateEmployeeModal()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </button>
+            </div>
+            <form id="createEmployeeForm" class="modal-form">
+                <div class="form-grid">
+                    <div class="input-wrapper">
+                       <label class="input-label">Full Name</label>
+                       <input type="text" id="newEmpName" required placeholder="Enter employee full name" autocomplete="off">
+                   </div>
+                   <div class="input-wrapper">
+                       <label class="input-label">Email Address</label>
+                       <input type="email" id="newEmpEmail" required placeholder="employee@entrykaro.com" autocomplete="off">
+                   </div>
+                   <div class="input-wrapper">
+                       <label class="input-label">Temporary Password</label>
+                       <input type="password" id="newEmpPassword" required placeholder="rakibul@123" autocomplete="off">
+                   </div>
+                   <div class="input-wrapper">
+                       <label class="input-label">Panel Enabled</label>
+                       <select id="newEmpEnabled" required>
+                           <option value="true" selected>Enabled</option>
+                           <option value="false">Disabled</option>
+                       </select>
+                   </div>
+                </div>
+                <div style="margin: var(--space-4) 0;">
+                   <label class="input-label" style="display: block; margin-bottom: var(--space-2);">Permissions Manager</label>
+                   <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-2);">
+                       <label style="display: flex; align-items: center; gap: var(--space-2); cursor: pointer; font-size: var(--text-sm);">
+                           <input type="checkbox" id="perm_dashboard" checked> Dashboard Card
+                       </label>
+                       <label style="display: flex; align-items: center; gap: var(--space-2); cursor: pointer; font-size: var(--text-sm);">
+                           <input type="checkbox" id="perm_received" checked> Received Entry
+                       </label>
+                       <label style="display: flex; align-items: center; gap: var(--space-2); cursor: pointer; font-size: var(--text-sm);">
+                           <input type="checkbox" id="perm_purchase" checked> Purchase Entry
+                       </label>
+                       <label style="display: flex; align-items: center; gap: var(--space-2); cursor: pointer; font-size: var(--text-sm);">
+                           <input type="checkbox" id="perm_upi" checked> UPI Management
+                       </label>
+                       <label style="display: flex; align-items: center; gap: var(--space-2); cursor: pointer; font-size: var(--text-sm);">
+                           <input type="checkbox" id="perm_idAccount" checked> ID Account Mgmt
+                       </label>
+                       <label style="display: flex; align-items: center; gap: var(--space-2); cursor: pointer; font-size: var(--text-sm);">
+                           <input type="checkbox" id="perm_notebook" checked> Private Notebook
+                       </label>
+                       <label style="display: flex; align-items: center; gap: var(--space-2); cursor: pointer; font-size: var(--text-sm);">
+                           <input type="checkbox" id="perm_search" checked> Global Search
+                       </label>
+                       <label style="display: flex; align-items: center; gap: var(--space-2); cursor: pointer; font-size: var(--text-sm);">
+                           <input type="checkbox" id="perm_profile" checked> Profile Info
+                       </label>
+                   </div>
+               </div>
+               <div class="modal-actions">
+                   <button type="button" class="btn btn-secondary" onclick="closeCreateEmployeeModal()">Cancel</button>
+                   <button type="submit" class="btn btn-primary">
+                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                           <path d="M12 4v16m8-8H4"/>
+                       </svg>
+                       Create Employee
+                   </button>
+               </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Employee Modal -->
+    <div id="editEmployeeModal" class="modal hidden">
+        <div class="modal-overlay" onclick="closeEditEmployeeModal()"></div>
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <div class="modal-title-wrap">
+                    <div class="modal-icon orange">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="modal-title" id="editEmpTitle">Edit Employee Details</h3>
+                        <p class="modal-subtitle" id="editEmpSubtitle">Modify permissions and panel access</p>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeEditEmployeeModal()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </button>
+            </div>
+            <form id="editEmployeeForm" class="modal-form">
+                <input type="hidden" id="editEmpId">
+                <input type="hidden" id="editEmpEmail">
+                <div class="form-grid">
+                    <div class="input-wrapper">
+                        <label class="input-label">Full Name</label>
+                        <input type="text" id="editEmpName" required placeholder="Enter employee full name" autocomplete="off">
+                    </div>
+                    <div class="input-wrapper">
+                        <label class="input-label">Panel Enabled</label>
+                        <select id="editEmpEnabled" required>
+                            <option value="true">Enabled</option>
+                            <option value="false">Disabled</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="margin: var(--space-4) 0;">
+                    <label class="input-label" style="display: block; margin-bottom: var(--space-2);">Permissions Manager</label>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-2);">
+                        <label style="display: flex; align-items: center; gap: var(--space-2); cursor: pointer; font-size: var(--text-sm);">
+                            <input type="checkbox" id="edit_perm_dashboard"> Dashboard Card
+                        </label>
+                        <label style="display: flex; align-items: center; gap: var(--space-2); cursor: pointer; font-size: var(--text-sm);">
+                            <input type="checkbox" id="edit_perm_received"> Received Entry
+                        </label>
+                        <label style="display: flex; align-items: center; gap: var(--space-2); cursor: pointer; font-size: var(--text-sm);">
+                            <input type="checkbox" id="edit_perm_purchase"> Purchase Entry
+                        </label>
+                        <label style="display: flex; align-items: center; gap: var(--space-2); cursor: pointer; font-size: var(--text-sm);">
+                            <input type="checkbox" id="edit_perm_upi"> UPI Management
+                        </label>
+                        <label style="display: flex; align-items: center; gap: var(--space-2); cursor: pointer; font-size: var(--text-sm);">
+                            <input type="checkbox" id="edit_perm_idAccount"> ID Account Mgmt
+                        </label>
+                        <label style="display: flex; align-items: center; gap: var(--space-2); cursor: pointer; font-size: var(--text-sm);">
+                            <input type="checkbox" id="edit_perm_notebook"> Private Notebook
+                        </label>
+                        <label style="display: flex; align-items: center; gap: var(--space-2); cursor: pointer; font-size: var(--text-sm);">
+                            <input type="checkbox" id="edit_perm_search"> Global Search
+                        </label>
+                        <label style="display: flex; align-items: center; gap: var(--space-2); cursor: pointer; font-size: var(--text-sm);">
+                            <input type="checkbox" id="edit_perm_profile"> Profile Info
+                        </label>
+                    </div>
+                </div>
+                
+                <div style="margin-top: var(--space-4); border-top: 1px solid var(--border-primary); padding-top: var(--space-4);">
+                    <label class="input-label" style="display: block; margin-bottom: var(--space-2);">Employee Logs & Activity</label>
+                    <div id="editEmpLogsList" style="max-height: 150px; overflow-y: auto; font-family: var(--font-mono); font-size: var(--text-xs); color: var(--text-secondary); background: var(--bg-primary); padding: var(--space-2); border-radius: var(--radius-md); border: 1px solid var(--border-primary);">
+                        Loading employee activity logs...
+                    </div>
+                </div>
+                
+                <div class="modal-actions" style="margin-top: var(--space-6); display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; gap: var(--space-2);">
+                        <button type="button" class="btn btn-secondary" onclick="triggerEmpPasswordReset()" style="border-color: var(--warning); color: var(--warning);">
+                            Send Reset Email
+                        </button>
+                        <button type="button" class="btn btn-danger" onclick="triggerEmpDelete()">
+                            Delete Employee
+                        </button>
+                    </div>
+                    <div style="display: flex; gap: var(--space-2);">
+                        <button type="button" class="btn btn-secondary" onclick="closeEditEmployeeModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Approve Subscription Modal -->
+    <div id="approveSubModal" class="modal hidden">
+        <div class="modal-overlay" onclick="closeApproveSubModal()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title-wrap">
+                    <div class="modal-icon green">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="modal-title">Approve Subscription</h3>
+                        <p class="modal-subtitle">Confirm UTR verification & grant access</p>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeApproveSubModal()">✕</button>
+            </div>
+            <form id="approveSubForm" onsubmit="confirmApproveSubscription(event)">
+                <input type="hidden" id="approveRequestId">
+                <input type="hidden" id="approveUid">
+
+                <div class="modal-body" style="padding: 16px 0;">
+                    <div style="background: rgba(255, 255, 255, 0.03); padding: 14px; border-radius: 8px; margin-bottom: 16px; border: 1px solid var(--border-primary);">
+                        <p style="margin-bottom: 6px;"><strong>User:</strong> <span id="approveUserName">-</span> (<span id="approveUserEmail">-</span>)</p>
+                        <p style="margin-bottom: 6px;"><strong>UTR Number:</strong> <span id="approveUtrText" style="color: var(--gold-color); font-weight: bold;">-</span></p>
+                        <p><strong>Amount:</strong> ₹<span id="approveAmount">-</span></p>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <label class="input-label">Calculate Expiry Date From:</label>
+                        <select id="approveExtensionMode" class="form-input" style="width: 100%;">
+                            <option value="from_today">Extend 30 Days From Today</option>
+                            <option value="from_existing">Extend 30 Days From Existing Expiry Date</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <label class="input-label">Duration (Days):</label>
+                        <input type="number" id="approveDurationDays" class="form-input" value="30">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="input-label">Admin Internal Remark (Optional):</label>
+                        <input type="text" id="approveAdminRemark" class="form-input" placeholder="Verified UTR against bank statement.">
+                    </div>
+                </div>
+
+                <div class="modal-actions" style="display: flex; justify-content: flex-end; gap: 12px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeApproveSubModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary" style="background: #4caf50; border-color: #4caf50;">Approve & Activate Access</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Reject Subscription Modal -->
+    <div id="rejectSubModal" class="modal hidden">
+        <div class="modal-overlay" onclick="closeRejectSubModal()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title-wrap">
+                    <div class="modal-icon red">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18.36 6.64a9 9 0 1 1-12.73 0M12 2v10"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="modal-title">Reject Payment Request</h3>
+                        <p class="modal-subtitle">Specify rejection reason to notify user</p>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeRejectSubModal()">✕</button>
+            </div>
+            <form id="rejectSubForm" onsubmit="confirmRejectSubscription(event)">
+                <input type="hidden" id="rejectRequestId">
+                <input type="hidden" id="rejectUid">
+
+                <div class="modal-body" style="padding: 16px 0;">
+                    <div style="background: rgba(229, 57, 53, 0.08); padding: 14px; border-radius: 8px; margin-bottom: 16px; border: 1px solid rgba(229, 57, 53, 0.3);">
+                        <p style="margin-bottom: 6px;"><strong>User:</strong> <span id="rejectUserName">-</span></p>
+                        <p><strong>Submitted UTR:</strong> <span id="rejectUtrText" style="font-weight: bold;">-</span></p>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <label class="input-label">Select Rejection Reason:</label>
+                        <select id="rejectReasonSelect" class="form-input" style="width: 100%;" required>
+                            <option value="Invalid UTR / Reference Number">Invalid UTR / Reference Number</option>
+                            <option value="Payment not received in account">Payment not received in account</option>
+                            <option value="Incorrect Payment Amount">Incorrect Payment Amount</option>
+                            <option value="Duplicate UTR Submission">Duplicate UTR Submission</option>
+                            <option value="Other / Contact Admin">Other / Contact Admin</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="input-label">Admin Remark / Message to User:</label>
+                        <textarea id="rejectAdminRemark" class="form-input" rows="2" placeholder="Please verify your UTR and resubmit."></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-actions" style="display: flex; justify-content: flex-end; gap: 12px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeRejectSubModal()">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Reject Payment Request</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Extend / Edit Expiry Modal -->
+    <div id="extendSubModal" class="modal hidden">
+        <div class="modal-overlay" onclick="closeExtendSubModal()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title-wrap">
+                    <div class="modal-icon yellow">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="modal-title">Extend / Edit Subscription</h3>
+                        <p class="modal-subtitle">Modify user expiry date or add extra days</p>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeExtendSubModal()">✕</button>
+            </div>
+            <form id="extendSubForm" onsubmit="confirmExtendSubscription(event)">
+                <input type="hidden" id="extendUid">
+
+                <div class="modal-body" style="padding: 16px 0;">
+                    <p style="margin-bottom: 12px;"><strong>User:</strong> <span id="extendUserName">-</span> (<span id="extendUserEmail">-</span>)</p>
+
+                    <label class="input-label" style="margin-bottom: 8px; display: block;">Quick Extension Presets:</label>
+                    <div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;">
+                        <button type="button" class="btn btn-secondary" onclick="addDaysToExpiry(7)">+7 Days</button>
+                        <button type="button" class="btn btn-secondary" onclick="addDaysToExpiry(15)">+15 Days</button>
+                        <button type="button" class="btn btn-secondary" onclick="addDaysToExpiry(30)">+30 Days</button>
+                        <button type="button" class="btn btn-secondary" onclick="addDaysToExpiry(60)">+60 Days</button>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <label class="input-label">Set Specific Expiry Date:</label>
+                        <input type="date" id="extendCustomExpiryDate" class="form-input" style="color-scheme: dark;" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="input-label">Admin Remark / Reason:</label>
+                        <input type="text" id="extendAdminRemark" class="form-input" placeholder="Manual extension granted by admin.">
+                    </div>
+                </div>
+
+                <div class="modal-actions" style="display: flex; justify-content: flex-end; gap: 12px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeExtendSubModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save New Expiry</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Approve Self Transfer Modal -->
+    <div id="approveStModal" class="modal hidden">
+        <div class="modal-overlay" onclick="closeApproveStModal()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title-wrap">
+                    <div class="modal-icon green">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="modal-title">Approve Self Transfer</h3>
+                        <p class="modal-subtitle">Atomically debit sender & credit recipient wallet</p>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeApproveStModal()">✕</button>
+            </div>
+            <form id="approveStForm" onsubmit="confirmApproveSt(event)">
+                <input type="hidden" id="approveStRequestId">
+
+                <div class="modal-body" style="padding: 16px 0;">
+                    <div style="background: rgba(76, 175, 80, 0.08); padding: 14px; border-radius: 8px; margin-bottom: 16px; border: 1px solid rgba(76, 175, 80, 0.3);">
+                        <p style="margin-bottom: 4px;"><strong>Sender:</strong> <span id="approveStSenderText">-</span></p>
+                        <p style="margin-bottom: 4px;"><strong>Recipient:</strong> <span id="approveStRecipientText">-</span></p>
+                        <p style="margin-bottom: 4px;"><strong>Transfer Amount:</strong> <span id="approveStAmountText" style="color: var(--gold-color); font-weight: bold;">₹0</span></p>
+                        <p><strong>Note:</strong> <span id="approveStNoteText">-</span></p>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="input-label">Admin Remark (Optional):</label>
+                        <input type="text" id="approveStAdminRemark" class="form-input" placeholder="Approved by Super Admin.">
+                    </div>
+                </div>
+
+                <div class="modal-actions" style="display: flex; justify-content: flex-end; gap: 12px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeApproveStModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary" style="background: #4caf50; color: white;">Confirm Approval</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Reject Self Transfer Modal -->
+    <div id="rejectStModal" class="modal hidden">
+        <div class="modal-overlay" onclick="closeRejectStModal()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title-wrap">
+                    <div class="modal-icon red">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18.36 6.64a9 9 0 1 1-12.73 0M12 2v10"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="modal-title">Reject Self Transfer</h3>
+                        <p class="modal-subtitle">Specify reason to reject transfer request</p>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeRejectStModal()">✕</button>
+            </div>
+            <form id="rejectStForm" onsubmit="confirmRejectSt(event)">
+                <input type="hidden" id="rejectStRequestId">
+
+                <div class="modal-body" style="padding: 16px 0;">
+                    <div style="background: rgba(229, 57, 53, 0.08); padding: 14px; border-radius: 8px; margin-bottom: 16px; border: 1px solid rgba(229, 57, 53, 0.3);">
+                        <p style="margin-bottom: 4px;"><strong>Sender:</strong> <span id="rejectStSenderText">-</span></p>
+                        <p style="margin-bottom: 4px;"><strong>Recipient:</strong> <span id="rejectStRecipientText">-</span></p>
+                        <p><strong>Transfer Amount:</strong> <span id="rejectStAmountText" style="color: var(--gold-color); font-weight: bold;">₹0</span></p>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <label class="input-label">Select Rejection Reason:</label>
+                        <select id="rejectStReasonSelect" class="form-input" style="width: 100%;" required>
+                            <option value="Insufficient Sender Balance">Insufficient Sender Balance</option>
+                            <option value="Invalid / Ineligible Recipient">Invalid / Ineligible Recipient</option>
+                            <option value="Unverified Sender Request">Unverified Sender Request</option>
+                            <option value="Duplicate Transfer Request">Duplicate Transfer Request</option>
+                            <option value="Rejected by Admin Policy">Rejected by Admin Policy</option>
+                            <option value="Other / Security Check">Other / Security Check</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="input-label">Admin Remark / Message to User:</label>
+                        <textarea id="rejectStAdminRemark" class="form-input" rows="2" placeholder="Self transfer request declined."></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-actions" style="display: flex; justify-content: flex-end; gap: 12px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeRejectStModal()">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Confirm Rejection</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
